@@ -1,0 +1,36 @@
+# for OU
+
+# RUN_ID = 4
+# T_GAP = 0.001
+# RUN_ID = 5
+# T_GAP = 0.00005
+# RUN_ID = 6
+# T_GAP = 0.000005
+# RUN_ID = 7
+# T_GAP = 0.000001
+# RUN_ID = 8
+# T_GAP = 0.0001
+# RUN_ID = 9
+# T_GAP = 0.0001
+# RUN_ID = 10
+# T_GAP = 0.001
+
+
+X_POINTS = 110
+# X_MIN = -0.01
+# X_MAX = 0.1
+
+RUN_ID = 11
+T_GAP = 0.001
+X_MIN = 0.01
+X_MAX = 0.11
+
+SEED = 19822012
+T_POINTS = 50
+N_SAMPLE = 100
+LEARNING_RATE_GH = 2*0.1**6    # for small OU, can try 3 or 4
+LEARNING_RATE_P = 0.1**4
+EPOCH = 200000
+BATCH_SIZE = 64
+PATIENCE = 20
+SIGMA = 0.5
