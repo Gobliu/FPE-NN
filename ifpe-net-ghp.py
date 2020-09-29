@@ -6,7 +6,7 @@ import sys
 import os
 from keras import callbacks, backend, losses
 import matplotlib.pyplot as plt
-sys.path.insert(1, './ifpeModules')
+sys.path.insert(1, './GridModules')
 from PartialDerivativeGrid import PartialDerivativeGrid as PDeGrid
 from PxtData import PxtData
 from Loss import Loss
@@ -73,9 +73,6 @@ def padding_by_axis2_smooth(data, size):
 def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     run_ = 0
     while run_ < 100:
-        # directory='./Result/pseudoB/{}_id{}_p{}_win{}{}'.format(run_, run_id, p_patience, recur_win_gh, recur_win_p)
-        # directory = './Result/OU/{}_id{}_p{}_win{}{}'.format(run_, run_id, p_patience, recur_win_gh, recur_win_p)
-        # directory = './Result/Bessel/id{}_{}_p{}_win{}{}'.format(run_id, run_, p_patience, recur_win_gh, recur_win_p)
         directory = './Result/Boltz/id{}_{}_p{}_win{}{}'.format(run_id, run_, p_patience, recur_win_gh, recur_win_p)
         if os.path.exists(directory):
             run_ += 1
