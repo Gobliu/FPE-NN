@@ -151,17 +151,17 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
 
     t_lsq_g, t_lsq_h, dt, p_mat = lsq.lsq_wo_t(pxt=true_data.train_data, t=true_data.train_t)
 
-    plt.figure()
-    plt.plot(x, lsq_g, 'r*')
-    plt.plot(x, t_lsq_g, 'b+')
-    plt.plot(x, real_g, 'k')
-    plt.show()
-
-    plt.figure()
-    plt.plot(x, lsq_h, 'r*')
-    plt.plot(x, t_lsq_h, 'b+')
-    plt.plot(x, real_h, 'k')
-    plt.show()
+    # plt.figure()
+    # plt.plot(x, lsq_g, 'r*')
+    # plt.plot(x, t_lsq_g, 'b+')
+    # plt.plot(x, real_g, 'k')
+    # plt.show()
+    #
+    # plt.figure()
+    # plt.plot(x, lsq_h, 'r*')
+    # plt.plot(x, t_lsq_h, 'b+')
+    # plt.plot(x, real_h, 'k')
+    # plt.show()
 
     if gh == 'real':
         gg_v, hh_v = real_g, real_h
@@ -184,7 +184,7 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
 
     p_weight = noisy_data.train_data.sum(axis=0).sum(axis=0)
     p_weight /= sum(p_weight)
-    np.save(directory + '/a_p_weight.npy', p_weight)
+    np.save(directory + '/p_weight.npy', p_weight)
 
     # train gh not end2end, train p end2end
     win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(smooth_data.train_data, smooth_data.train_t, recur_win_gh)
@@ -196,7 +196,7 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     train_p_y_ng = np.copy(win_y)
     train_p_t_ng = np.copy(win_t)
 
-    log = open(directory + '/a_train.log', 'a')
+    log = open(directory + '/train.log', 'a')
     true_train_x, _, _, _ = PxtData_NG.get_recur_win_e2e(true_data.train_data, true_data.train_t, recur_win_p)
     log.write('Initial error of p: {} \n'.format(np.sum((train_p_p_ng - true_train_x)**2)**0.5))
     log.close()
@@ -297,8 +297,8 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
         log.close()
 
         # save
-        np.save(directory + '/gg_iter{}_ng.npy'.format(iter_), gg_v_ng[:, 0, 0])
-        np.save(directory + '/hh_iter{}_ng.npy'.format(iter_), hh_v_ng[:, 0, 0])
+        np.save(directory + '/iter{}_gg_ng.npy'.format(iter_), gg_v_ng[:, 0, 0])
+        np.save(directory + '/iter{}_hh_ng.npy'.format(iter_), hh_v_ng[:, 0, 0])
 
 
 if __name__ == '__main__':
