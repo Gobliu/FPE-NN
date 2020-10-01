@@ -2,7 +2,7 @@ import numpy as np
 import sys
 import math
 import matplotlib.pyplot as plt
-sys.path.insert(1, './ifpeModules')
+sys.path.insert(1, './GridModules')
 from FokkerPlankEqn import FokkerPlankForward as FPF
 import Boltz_config as config   # Local Script
 
@@ -23,7 +23,6 @@ np.random.seed(seed)
 
 D = 0.5
 THETA = 2.86
-
 
 t_init_min = 0.005
 t_init_max = 0.010
@@ -78,14 +77,13 @@ def histogram_ou(x, mu_var):
 
 def ou_main_run():
     x = np.linspace(x_min, x_max, num=x_points, endpoint=False)
-    # g = THETA * x
-    # g = 1/x + 0.002         # ID 20
-    # g = 1/x - 0.2
-    # h = D * np.ones(x_points)
     # ========================== boltz
     g = x - 0.1
     # h = x ** 2 * 0.1 / 2
     h = x ** 2 / 4
+    # ========================== 2017
+    g = x - 1
+    h = 0.2 * x **2
 
     print('x:', x)
     print(g, h)
@@ -124,8 +122,8 @@ def ou_main_run():
 
         # idx_noise = np.random.randint(-int(0.3*t_factor), int(0.4*t_factor), size=t_points)
         # print(idx_noise)
-        # pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor)) + idx_noise[i]        # id 2015
-        pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor))                         # id 2016
+        pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor)) + idx_noise[i]        # id 2015 or 2017
+        # pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor))                         # id 2016
         pxt_idx[pxt_idx < 0] = 0
         # print(pxt_idx)
         pxt_idx.sort()

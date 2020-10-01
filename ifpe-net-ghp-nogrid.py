@@ -121,8 +121,11 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
                      np.sum((smooth_pxt - true_pxt)**2)**0.5/np.sum(true_pxt**2)**0.5))
     log.close()
 
-    real_g = x - 0.1
-    real_h = x ** 2 / 4
+    # real_g = x - 0.1
+    # real_h = x ** 2 / 4
+    real_g = x - 1
+    real_h = 0.2 * x ** 2
+
 
     if smooth_p:
         update_pxt = np.copy(smooth_pxt)
@@ -151,17 +154,17 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
 
     t_lsq_g, t_lsq_h, dt, p_mat = lsq.lsq_wo_t(pxt=true_data.train_data, t=true_data.train_t)
 
-    # plt.figure()
-    # plt.plot(x, lsq_g, 'r*')
-    # plt.plot(x, t_lsq_g, 'b+')
-    # plt.plot(x, real_g, 'k')
-    # plt.show()
-    #
-    # plt.figure()
-    # plt.plot(x, lsq_h, 'r*')
-    # plt.plot(x, t_lsq_h, 'b+')
-    # plt.plot(x, real_h, 'k')
-    # plt.show()
+    plt.figure()
+    plt.plot(x, lsq_g, 'r*')
+    plt.plot(x, t_lsq_g, 'b+')
+    plt.plot(x, real_g, 'k')
+    plt.show()
+
+    plt.figure()
+    plt.plot(x, lsq_h, 'r*')
+    plt.plot(x, t_lsq_h, 'b+')
+    plt.plot(x, real_h, 'k')
+    plt.show()
 
     if gh == 'real':
         gg_v, hh_v = real_g, real_h
