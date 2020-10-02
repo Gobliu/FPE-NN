@@ -247,6 +247,7 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
 
         total_train_p_loss_before = 0
         total_train_p_loss_after = 0
+        predict_loss = 0
         for sample in range(n_sample):
             sample_id, t_id = win_id[sample]      # no true data, end2end
             print('Training P, Sample id: {}, time id {}'.format(sample_id, t_id))
@@ -266,6 +267,9 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
                                       train_p_y_ng[sample:sample+1, ...])
             total_train_p_loss_after += p_loss
 
+            y_model_ng = p_nn_ng.predict([train_p_x, train_p_t_ng[sample:sample+1, ...]])
+            predict_loss += np.sum((y_model_ng - train_p_y_ng[sample:sample+1, ...])**2)
+
         update_data_ng.train_data = padding_by_axis2_smooth(update_data_ng.train_data, 5)
 
         win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(update_data_ng.train_data, update_data_ng.train_t,
@@ -279,8 +283,9 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
         train_p_p_ng = np.copy(win_x)
 
         log = open(directory + '/train.log', 'a')
-        log.write('Total error of p training before: {}, after: {}\n'.format(total_train_p_loss_before,
-                                                                             total_train_p_loss_after))
+        log.write('Total error of p training before: {}, after: {}, prediect: {}\n'.format(total_train_p_loss_before,
+                                                                                           total_train_p_loss_after,
+                                                                                           predict_loss))
         log.write('Error to true p: {} ratio {}, Error to noisy p: {} ratio {} \n'.
                   format(np.sum((train_gh_x_ng - true_train_x)**2)**0.5,
                          (np.sum((train_gh_x_ng - true_train_x) ** 2)/np.sum(true_train_x**2))**0.5,

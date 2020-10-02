@@ -1,6 +1,6 @@
 # for Boltz
 
-RUN_ID = 2017
+RUN_ID = 2018
 T_GAP = 0.0005
 X_POINTS = 100
 X_MIN = 0.
@@ -17,4 +17,4 @@ EPOCH = 200000
 BATCH_SIZE = 32
 PATIENCE = 20
 
-SIGMA = 0.015        # ID 17
+SIGMA = 0.020        # ID 17
