@@ -164,10 +164,6 @@ def ou_main_run():
     print(np.sum(f_true_pxt[:, :, :range_]**2))
     print(np.sum(error**2)/np.sum(f_true_pxt[:, :, :range_]**2))
     print((np.sum(error ** 2) / np.sum(f_true_pxt[:, :, :range_] ** 2))**0.5)
-    # np.save('./Pxt/B_OU_{}_pxt_{}_sigma{}.npy'.format(run_id, seed, sigma), true_pxt)
-    # np.save('./Pxt/B_OU_{}_noisy_{}_sigma{}.npy'.format(run_id, seed, sigma), noisy_pxt)
-    # np.save('./Pxt/B_f_{}_pxt_{}_sigma{}.npy'.format(run_id, seed, sigma), f_true_pxt[:, :, :100])
-    # np.save('./Pxt/B_f_{}_noisy_{}_sigma{}.npy'.format(run_id, seed, sigma), f_noisy_pxt[:, :, :100])
     np.savez_compressed('./Pxt/Boltz_id{}_{}_sigma{}'.format(run_id, seed, sigma), x=x[:range_], t=t,
                         true_pxt=f_true_pxt[:, :, :range_], noisy_pxt=f_noisy_pxt[:, :, :range_])
 
