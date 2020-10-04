@@ -12,14 +12,10 @@ from NonGridModules.FPLeastSquare_NG import FPLeastSquare_NG
 from NonGridModules.FPENet_NG import FPENet_NG
 from NonGridModules.Loss import Loss
 
-# import OU_config as config  # B_config or OU_config
-# import B_config as config
-import Boltz_config as config
+import OU_config as config
+import B_config as config
+# import Boltz_config as config
 
-# from GridModules.PxtData import PxtData
-# from GridModules.PartialDerivativeGrid import PartialDerivativeGrid as PDeGrid
-# from GridModules.FPLeastSquare import FPLeastSquare
-# from GridModules.FPNet_ReCur import FPNetReCur
 from GridModules.GaussianSmooth import GaussianSmooth
 
 np.set_printoptions(suppress=True)
@@ -85,8 +81,10 @@ def padding_by_axis2_smooth(data, size):
 def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     run_ = 0
     while run_ < 100:
-        directory = '/home/liuwei/GitHub/Result/Boltz/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
-                                                                                  recur_win_p, run_)
+        # directory = '/home/liuwei/GitHub/Result/Boltz/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
+        #                                                                           recur_win_p, run_)
+        directory = '/home/liuwei/GitHub/Result/Bessel/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
+                                                                                   recur_win_p, run_)
         if os.path.exists(directory):
             run_ += 1
             pass
@@ -94,7 +92,8 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
             os.makedirs(directory)
             break
 
-    data = np.load('./Pxt/Boltz_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
+    # data = np.load('./Pxt/Boltz_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
+    data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
     x = data['x']
     x_points = x.shape[0]
     print(x_points)
@@ -121,11 +120,15 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
                      np.sum((smooth_pxt - true_pxt)**2)**0.5/np.sum(true_pxt**2)**0.5))
     log.close()
 
-    # real_g = x - 0.1
-    # real_h = x ** 2 / 4
-    real_g = x - 1
-    real_h = 0.2 * x ** 2
-
+    # Boltz
+    # real_g = x - 1
+    # real_h = 0.2 * x**2
+    # Bessel
+    real_g = 1/x - 0.2
+    real_h = 0.5 * np.ones(x.shape)
+    # OU
+    # real_g = 2.86 * x
+    # real_h = 0.0013 * np.ones(x.shape)
 
     if smooth_p:
         update_pxt = np.copy(smooth_pxt)
@@ -247,24 +250,28 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
 
         total_train_p_loss_before = 0
         total_train_p_loss_after = 0
+        predict_loss = 0
         for sample in range(n_sample):
-            sample_id, t_id = win_id[sample]      # no true data, end2end
+            sample_id, t_id = win_id[sample]  # no true data, end2end
             print('Training P, Sample id: {}, time id {}'.format(sample_id, t_id))
             p_nn_ng.get_layer(name=name + 'p').set_weights([train_p_p_ng[sample].reshape(-1, 1, 1)])
             es = callbacks.EarlyStopping(verbose=verb, patience=p_patience)
             # May 10 change iter_//5
-            p_loss = p_nn_ng.evaluate([train_p_x, train_p_t_ng[sample:sample+1, ...]],
-                                      train_p_y_ng[sample:sample+1, ...])
+            p_loss = p_nn_ng.evaluate([train_p_x, train_p_t_ng[sample:sample + 1, ...]],
+                                      train_p_y_ng[sample:sample + 1, ...])
             total_train_p_loss_before += p_loss
-            p_nn_ng.fit([train_p_x, train_p_t_ng[sample:sample+1, ...]], train_p_y_ng[sample:sample+1, ...],
-                        epochs=iter_//p_epoch_factor + 1, verbose=verb, callbacks=[es],
-                        validation_data=[[train_p_x, train_p_t_ng[sample:sample+1, ...]],
-                        train_p_y_ng[sample:sample+1, ...]])
+            p_nn_ng.fit([train_p_x, train_p_t_ng[sample:sample + 1, ...]], train_p_y_ng[sample:sample + 1, ...],
+                        epochs=iter_ // p_epoch_factor + 1, verbose=verb, callbacks=[es],
+                        validation_data=[[train_p_x, train_p_t_ng[sample:sample + 1, ...]],
+                                         train_p_y_ng[sample:sample + 1, ...]])
 
             update_data_ng.train_data[sample_id, t_id] = p_nn_ng.get_layer(name=name + 'p').get_weights()[0][:, 0, 0]
-            p_loss = p_nn_ng.evaluate([train_p_x, train_p_t_ng[sample:sample+1, ...]],
-                                      train_p_y_ng[sample:sample+1, ...])
+            p_loss = p_nn_ng.evaluate([train_p_x, train_p_t_ng[sample:sample + 1, ...]],
+                                      train_p_y_ng[sample:sample + 1, ...])
             total_train_p_loss_after += p_loss
+
+            y_model_ng = p_nn_ng.predict([train_p_x, train_p_t_ng[sample:sample + 1, ...]])
+            predict_loss += np.sum((y_model_ng - train_p_y_ng[sample:sample + 1, ...]) ** 2)
 
         update_data_ng.train_data = padding_by_axis2_smooth(update_data_ng.train_data, 5)
 
@@ -272,15 +279,16 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
                                                               recur_win_gh)
         train_gh_x_ng = np.copy(win_x)
         train_gh_y_ng = np.copy(win_y)
-        train_gh_t_ng = np.copy(win_t)      # key??
+        train_gh_t_ng = np.copy(win_t)  # key??
 
         win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(update_data_ng.train_data, update_data_ng.train_t,
                                                               recur_win_p)
         train_p_p_ng = np.copy(win_x)
 
         log = open(directory + '/train.log', 'a')
-        log.write('Total error of p training before: {}, after: {}\n'.format(total_train_p_loss_before,
-                                                                             total_train_p_loss_after))
+        log.write('Total error of p training before: {}, after: {}, predict: {}\n'.format(total_train_p_loss_before,
+                                                                                          total_train_p_loss_after,
+                                                                                          predict_loss))
         log.write('Error to true p: {} ratio {}, Error to noisy p: {} ratio {} \n'.
                   format(np.sum((train_gh_x_ng - true_train_x)**2)**0.5,
                          (np.sum((train_gh_x_ng - true_train_x) ** 2)/np.sum(true_train_x**2))**0.5,

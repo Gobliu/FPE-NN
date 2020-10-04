@@ -142,33 +142,30 @@ def ou_main_run():
         f_noisy_pxt[i, :, :] = f_noisy_p
         print(np.sum(f_noisy_pxt[i, -1, :]))
 
-        plt.figure(figsize=[12, 8])
-        plt.plot(x[:], true_pxt[i, 1, :], 'k-', label='p_initial', linewidth=4)
-        plt.plot(x[:], true_pxt[i, -1, :], 'r-', label='p_final', linewidth=4)
-        # plt.plot(x, f_true_pxt[i, 1, :], 'y-', label='f_p_initial', linewidth=4)
-        plt.plot(x[:], f_true_pxt[i, -1, :], 'g-', label='f_p_final', linewidth=4)
-        # plt.plot(x, f_noisy_pxt[i, 1, :], 'r.', label='p_initial')
-        # plt.plot(x, f_noisy_pxt[i, -1, :], 'b^', label='p_final')
-        plt.legend(fontsize=30)
-        plt.ion()
-        plt.pause(0.6)
-        plt.close()
-        # sys.exit()
-        # plt.show()
+        # plt.figure(figsize=[12, 8])
+        # plt.plot(x[:], true_pxt[i, 1, :], 'k-', label='p_initial', linewidth=4)
+        # plt.plot(x[:], true_pxt[i, -1, :], 'r-', label='p_final', linewidth=4)
+        # # plt.plot(x, f_true_pxt[i, 1, :], 'y-', label='f_p_initial', linewidth=4)
+        # plt.plot(x[:], f_true_pxt[i, -1, :], 'g-', label='f_p_final', linewidth=4)
+        # # plt.plot(x, f_noisy_pxt[i, 1, :], 'r.', label='p_initial')
+        # # plt.plot(x, f_noisy_pxt[i, -1, :], 'b^', label='p_final')
+        # plt.legend(fontsize=30)
+        # plt.ion()
+        # plt.pause(0.6)
+        # plt.close()
+        # # sys.exit()
+        # # plt.show()
 
-    print(np.min(f_noisy_pxt[:, :, :100]))
+    range_ = 100
+    print(np.min(f_noisy_pxt[:, :, :range_]))
     # print(f_true_pxt[0, 0, :])
-    error = f_true_pxt[:, :, :100] - f_noisy_pxt[:, :, :100]
+    error = f_true_pxt[:, :, :range_] - f_noisy_pxt[:, :, :range_]
     print(np.sum(error**2))
-    print(np.sum(f_true_pxt[:, :, :100]**2))
-    print(np.sum(error**2)/np.sum(f_true_pxt[:, :, :100]**2))
-    print((np.sum(error ** 2) / np.sum(f_true_pxt[:, :, :100] ** 2))**0.5)
-    # np.save('./Pxt/B_OU_{}_pxt_{}_sigma{}.npy'.format(run_id, seed, sigma), true_pxt)
-    # np.save('./Pxt/B_OU_{}_noisy_{}_sigma{}.npy'.format(run_id, seed, sigma), noisy_pxt)
-    # np.save('./Pxt/B_f_{}_pxt_{}_sigma{}.npy'.format(run_id, seed, sigma), f_true_pxt[:, :, :100])
-    # np.save('./Pxt/B_f_{}_noisy_{}_sigma{}.npy'.format(run_id, seed, sigma), f_noisy_pxt[:, :, :100])
-    np.savez_compressed('./Pxt/Boltz_id{}_{}_sigma{}'.format(run_id, seed, sigma), x=x[:100], t=t,
-                        true_pxt=f_true_pxt[:, :, :100], noisy_pxt=f_noisy_pxt[:, :, :100])
+    print(np.sum(f_true_pxt[:, :, :range_]**2))
+    print(np.sum(error**2)/np.sum(f_true_pxt[:, :, :range_]**2))
+    print((np.sum(error ** 2) / np.sum(f_true_pxt[:, :, :range_] ** 2))**0.5)
+    np.savez_compressed('./Pxt/Boltz_id{}_{}_sigma{}'.format(run_id, seed, sigma), x=x[:range_], t=t,
+                        true_pxt=f_true_pxt[:, :, :range_], noisy_pxt=f_noisy_pxt[:, :, :range_])
 
 
 if __name__ == '__main__':

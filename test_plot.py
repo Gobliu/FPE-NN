@@ -57,48 +57,28 @@ plt.rc('axes', linewidth=2)
 # directory = './Result/OU/{}_id{}_p{}_win{}{}'.format(0, 4, 10, 9, 9)
 # directory = './Result/Bessel/{}_id{}_p{}_win{}{}'.format(1, 6, 10, 9, 9)
 # directory = './Result/Bessel/id{}_{}_p{}_win{}{}'.format(2015, 6, 10, 13, 13)
-directory = './Result/Boltz/id{}_{}_p{}_win{}{}'.format(2015, 2, 10, 13, 13)
+directory = '/home/liuwei/GitHub/Result/Bessel/id{}_p{}_win{}{}_{}'.format(2016, 10, 13, 13, 2)
 # real_g = 1/x - 0.2
 # real_h = 0.0013 * np.ones(x_points)
 
-iter_range = 350
+iter_range = 50
 error_g = np.zeros(iter_range)
 error_h = np.zeros(iter_range)
 error_p = np.zeros(iter_range)
 iter_no = np.arange(0, iter_range, 1)
 
-# load = np.load('./Pxt/pseudoB/B_OU_{}_pxt_{}_sigma{}.npy'.format(0, 19822012, 0.05))
-# load = np.load('./Pxt/OU/OU_{}_pxt_{}_sigma{}.npy'.format(4, 19822012, 0.5))
-# load = np.load('./Pxt/OU/4_noisy_2015_sigma0.5.npy')
-# load = np.load('./Pxt/Bessel/B_f_{}_pxt_{}_sigma{}.npy'.format(2015, 19822012, 0.015))
-load = np.load('./Pxt/Bessel/B_f_{}_pxt_{}_sigma{}.npy'.format(2015, 19822012, 0.015))
-x = load[0, 0, :]
-# real_g = 1/x - 0.2
-# real_g = 2.86 * x
-# real_h = 0.5 * np.ones(len(x))
-# real_h = 0.0013 * np.ones(len(x))
-# true_pxt = load[:, 1:, :]
-# real_p = true_pxt[:, 0: 45, :]
-# print(true_pxt.shape)
+data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(2016, 19822012, 0.018))
+x = data['x']
+x_points = x.shape[0]
+print(x_points)
+t = data['t']
+true_pxt = data['true_pxt']
+noisy_pxt = data['noisy_pxt']
+
+real_g = 1 / x - 0.2
+real_h = 0.5 * np.ones(x.shape)
+
 p_weight = np.load(directory + '/p_weight.npy')
-# p_weight_OU = np.load(directory + '/p_weight_OU.npy')
-
-# load = np.load('./Pxt/Boltz_{}.npz'.format(2))
-# x = load['x']
-# t = load['t']
-# # print(t)
-# # t_gap = t[0, 1] - t[0, 0]
-# # print(t_gap)
-# true_pxt = load['true_pxt']
-# noisy_pxt = load['noisy_pxt']
-
-# true_pxt[true_pxt < 0] = 0
-# noisy_pxt[noisy_pxt < 0] = 0
-
-real_g = x - 0.1
-# real_h = x ** 2 * 0.1 / 2
-# real_h = 0.5 * np.ones(x.shape)
-real_h = x ** 2 / 4
 
 ip_file = open(directory+'/train.log', 'r')
 log = ip_file.readlines()
@@ -119,12 +99,12 @@ pre_g = real_g
 pre_h = real_h
 
 print(x, p_weight)
-for iter_ in range(200, iter_range):
+for iter_ in range(20, iter_range):
     # iter_ = 140
-    cal_g = np.load(directory + '/gg_iter{}_smooth.npy'.format(iter_))
+    cal_g = np.load(directory + '/iter{}_gg_ng.npy'.format(iter_))
     # print(cal_g.shape)
     error_g[iter_] = np.sum((cal_g - real_g)**2)
-    cal_h = np.load(directory + '/hh_iter{}_smooth.npy'.format(iter_))
+    cal_h = np.load(directory + '/iter{}_hh_ng.npy'.format(iter_))
     error_h[iter_] = np.sum((cal_h - real_h) ** 2)
 
     print(np.sum((cal_g - real_g)**2), np.sum(real_g**2))

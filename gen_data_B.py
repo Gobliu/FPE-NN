@@ -152,15 +152,16 @@ def ou_main_run():
         # sys.exit()
         # plt.show()
 
-    print(np.min(f_noisy_pxt[:, :, :100]))
+    range_ = 100
+    print(np.min(f_noisy_pxt[:, :, :range_]))
     # print(f_true_pxt[0, 0, :])
-    error = f_true_pxt[:, :, :100] - f_noisy_pxt[:, :, :100]
+    error = f_true_pxt[:, :, :range_] - f_noisy_pxt[:, :, :range_]
     print(np.sum(error**2))
-    print(np.sum(f_true_pxt[:, :, :100]**2))
-    print(np.sum(error**2)/np.sum(f_true_pxt[:, :, :100]**2))
-    print((np.sum(error ** 2) / np.sum(f_true_pxt[:, :, :100] ** 2))**0.5)
-    np.savez_compressed('./Pxt/Bessel_id{}_{}_sigma{}'.format(run_id, seed, sigma), x=x[:100], t=t,
-                        true_pxt=f_true_pxt[:, :, :100], noisy_pxt=f_noisy_pxt[:, :, :100])
+    print(np.sum(f_true_pxt[:, :, :range_]**2))
+    print(np.sum(error**2)/np.sum(f_true_pxt[:, :, :range_]**2))
+    print((np.sum(error ** 2) / np.sum(f_true_pxt[:, :, :range_] ** 2))**0.5)
+    np.savez_compressed('./Pxt/Bessel_id{}_{}_sigma{}'.format(run_id, seed, sigma), x=x[:range_], t=t,
+                        true_pxt=f_true_pxt[:, :, :range_], noisy_pxt=f_noisy_pxt[:, :, :range_])
 
 
 if __name__ == '__main__':
