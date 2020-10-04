@@ -78,12 +78,12 @@ def histogram_ou(x, mu_var):
 def ou_main_run():
     x = np.linspace(x_min, x_max, num=x_points, endpoint=False)
     # ========================== boltz
-    g = x - 0.1
+    # g = x - 0.1
     # h = x ** 2 * 0.1 / 2
-    h = x ** 2 / 4
+    # h = x ** 2 / 4
     # ========================== 2017
     g = x - 1
-    h = 0.2 * x **2
+    h = 0.2 * x ** 2
 
     print('x:', x)
     print(g, h)
@@ -122,8 +122,8 @@ def ou_main_run():
 
         # idx_noise = np.random.randint(-int(0.3*t_factor), int(0.4*t_factor), size=t_points)
         # print(idx_noise)
-        pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor)) + idx_noise[i]        # id 2015 or 2017
-        # pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor))                         # id 2016
+        # pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor)) + idx_noise[i]        # id 2015 or 2017
+        pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor))                         # id 2016 or 2018
         pxt_idx[pxt_idx < 0] = 0
         # print(pxt_idx)
         pxt_idx.sort()
@@ -156,13 +156,13 @@ def ou_main_run():
         # sys.exit()
         # plt.show()
 
-    print(np.min(f_noisy_pxt[:, 1:, :]))
+    print(np.min(f_noisy_pxt[:, :, :100]))
     # print(f_true_pxt[0, 0, :])
-    error = f_true_pxt[:, 1:, :] - f_noisy_pxt[:, 1:, :]
+    error = f_true_pxt[:, :, :100] - f_noisy_pxt[:, :, :100]
     print(np.sum(error**2))
-    print(np.sum(f_true_pxt[:, 1:, :]**2))
-    print(np.sum(error**2)/np.sum(f_true_pxt[:, 1:, :]**2))
-    print((np.sum(error ** 2) / np.sum(f_true_pxt[:, 1:, :] ** 2))**0.5)
+    print(np.sum(f_true_pxt[:, :, :100]**2))
+    print(np.sum(error**2)/np.sum(f_true_pxt[:, :, :100]**2))
+    print((np.sum(error ** 2) / np.sum(f_true_pxt[:, :, :100] ** 2))**0.5)
     # np.save('./Pxt/B_OU_{}_pxt_{}_sigma{}.npy'.format(run_id, seed, sigma), true_pxt)
     # np.save('./Pxt/B_OU_{}_noisy_{}_sigma{}.npy'.format(run_id, seed, sigma), noisy_pxt)
     # np.save('./Pxt/B_f_{}_pxt_{}_sigma{}.npy'.format(run_id, seed, sigma), f_true_pxt[:, :, :100])
