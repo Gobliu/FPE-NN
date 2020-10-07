@@ -29,8 +29,8 @@ seed = 19822012
 # directory = '/home/liuwei/GitHub/Result/{}/id{}_p{}_win{}{}_{}'.format(process, run_id, p_patience, recur_win_gh,
 #                                                                        recur_win_p, run_)
 # log = open(directory + '/train.log', 'r').readlines()
-log = open('/home/liuwei/GitHub/Result/ghp/Boltz_id2017_p10_win1313_2.txt', 'r').readlines()
-data = np.load('./Pxt/{}_id{}_{}_sigma{}.npz'.format(process,run_id, seed, sigma))
+# log = open('/home/liuwei/GitHub/Result/ghp/Boltz_id2017_p10_win1313_2.txt', 'r').readlines()
+data = np.load('./Pxt/{}_id{}_{}_sigma{}.npz'.format(process, run_id, seed, sigma))
 x = data['x']
 x_points = x.shape[0]
 print(x_points)
@@ -40,10 +40,13 @@ noisy_pxt = data['noisy_pxt']
 
 true_data = PxtData_NG(t=t, x=x, data=true_pxt)
 true_data.sample_train_split_e2e(test_range=5)
-win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(true_data.train_data, true_data.train_t, 13)
+win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(true_data.train_data, true_data.train_t, 5)
 print(win_y.shape, np.sum(win_y**2) / 4500)
 denom = np.sum(win_y**2) / 4500
 denom_test = np.sum(true_pxt[:, :, -5:]**2)
+
+print(denom, denom_test)
+sys.exit()
 
 pos = 0
 L1_list = []
