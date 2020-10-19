@@ -16,10 +16,10 @@ plt.rc('font', **font)
 plt.rc('axes', linewidth=2)
 legend_properties = {'weight': 'bold'}
 
-process = 'Boltz'
-run_id = 2017
+process = 'OU'
+run_id = 2016
 run_ = 2
-sigma = 0.015
+sigma = 0.16
 recur_win_gh = 13
 recur_win_p = 13
 p_patience = 10
@@ -34,13 +34,21 @@ data = np.load('./Pxt/{}_id{}_{}_sigma{}.npz'.format(process, run_id, seed, sigm
 x = data['x']
 x_points = x.shape[0]
 print(x_points)
-t = data['t']
+# t = data['t']
+# =================
+t = np.zeros((100, 50, 1))
+v_ = 0
+for i in range(50):
+    t[:, i, :] = v_
+    v_ += 0.001
+print(t[0])
+# =================
 true_pxt = data['true_pxt']
 noisy_pxt = data['noisy_pxt']
 
 true_data = PxtData_NG(t=t, x=x, data=true_pxt)
 true_data.sample_train_split_e2e(test_range=5)
-win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(true_data.train_data, true_data.train_t, 5)
+win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(true_data.train_data, true_data.train_t, 13)
 print(win_y.shape, np.sum(win_y**2) / 4500)
 denom = np.sum(win_y**2) / 4500
 denom_test = np.sum(true_pxt[:, :, -5:]**2)

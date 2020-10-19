@@ -12,8 +12,8 @@ from NonGridModules.FPLeastSquare_NG import FPLeastSquare_NG
 from NonGridModules.FPENet_NG import FPENet_NG
 from NonGridModules.Loss import Loss
 
-import OU_config as config
-# import B_config as config
+# import OU_config as config
+import B_config as config
 # import Boltz_config as config
 
 from GridModules.GaussianSmooth import GaussianSmooth
@@ -34,8 +34,8 @@ gh_epoch = config.EPOCH
 p_epoch = 1
 patience = config.PATIENCE
 batch_size = config.BATCH_SIZE
-recur_win_gh = 13
-recur_win_p = 13
+recur_win_gh = 9
+recur_win_p = 9
 verb = 2
 p_epoch_factor = 5
 gh = 'lsq'         # check
@@ -83,10 +83,10 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     while run_ < 100:
         # directory = '/home/liuwei/GitHub/Result/Boltz/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
         #                                                                           recur_win_p, run_)
-        # directory = '/home/liuwei/GitHub/Result/Bessel/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
-        #                                                                            recur_win_p, run_)
-        directory = '/home/liuwei/GitHub/Result/OU/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
-                                                                               recur_win_p, run_)
+        directory = '/home/liuwei/GitHub/Result/Bessel/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
+                                                                                   recur_win_p, run_)
+        # directory = '/home/liuwei/GitHub/Result/OU/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
+        #                                                                        recur_win_p, run_)
         if os.path.exists(directory):
             run_ += 1
             pass
@@ -95,19 +95,19 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
             break
 
     # data = np.load('./Pxt/Boltz_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
-    # data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
-    data = np.load('./Pxt/OU_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
+    data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
+    # data = np.load('./Pxt/OU_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
     x = data['x']
     x_points = x.shape[0]
     print(x_points)
-    # t = data['t']
+    t = data['t']
     # ==================
-    t = np.zeros((100, 50, 1))
-    v_ = 0
-    for i in range(50):
-        t[:, i, :] = v_
-        v_ += t_gap
-    print(t[0])
+    # t = np.zeros((100, 50, 1))
+    # v_ = 0
+    # for i in range(50):
+    #     t[:, i, :] = v_
+    #     v_ += t_gap
+    # print(t[0])
     # ===================
     true_pxt = data['true_pxt']
     noisy_pxt = data['noisy_pxt']
@@ -135,11 +135,11 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     # real_g = x - 1
     # real_h = 0.2 * x**2
     # Bessel
-    # real_g = 1/x - 0.2
-    # real_h = 0.5 * np.ones(x.shape)
+    real_g = 1/x - 0.2
+    real_h = 0.5 * np.ones(x.shape)
     # OU
-    real_g = 2.86 * x
-    real_h = 0.0013 * np.ones(x.shape)
+    # real_g = 2.86 * x
+    # real_h = 0.0013 * np.ones(x.shape)
 
     if smooth_p:
         update_pxt = np.copy(smooth_pxt)
