@@ -224,8 +224,10 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
         log.write('Iter: {} \n'.format(iter_))
 
         # smooth
-        gg_v_ng[:, 0, 0] = GaussianSmooth.gaussian1d(gg_v_ng[:, 0, 0], sigma=1 / (smooth_gh * iter_+1))
-        hh_v_ng[:, 0, 0] = GaussianSmooth.gaussian1d(hh_v_ng[:, 0, 0], sigma=1 / (smooth_gh * iter_+1))
+        # gg_v_ng[:, 0, 0] = GaussianSmooth.gaussian1d(gg_v_ng[:, 0, 0], sigma=1 / (smooth_gh * iter_+1))
+        # hh_v_ng[:, 0, 0] = GaussianSmooth.gaussian1d(hh_v_ng[:, 0, 0], sigma=1 / (smooth_gh * iter_+1))
+        gg_v_ng[:, 0, 0] = signal.savgol_filter(gg_v_ng[:, 0, 0], sf_range, 2)
+        hh_v_ng[:, 0, 0] = signal.savgol_filter(hh_v_ng[:, 0, 0], sf_range, 2)
 
         # train gh
         gh_nn_ng.get_layer(name=name + 'g').set_weights([gg_v_ng])

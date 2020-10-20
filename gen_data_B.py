@@ -25,9 +25,9 @@ D = 0.5
 THETA = 2.86
 
 t_init_min = 0.008
-t_init_max = 0.013
-y_min = 0.4
-y_max = 0.7
+t_init_max = 0.012          # 2016: 0.013
+y_min = 0.5                 # 2016: 0.4
+y_max = 0.8
 
 
 def p_initial(x, mu_min, mu_max, sigma_min, sigma_max, gau_no=2, seed=None):
@@ -138,19 +138,19 @@ def ou_main_run():
         f_noisy_pxt[i, :, :] = f_noisy_p
         print(np.sum(f_noisy_pxt[i, -1, :]))
 
-        # plt.figure(figsize=[12, 8])
-        # plt.plot(x[:], true_pxt[i, 0, :], 'k-', label='p_initial', linewidth=4)
-        # plt.plot(x[:], true_pxt[i, -1, :], 'r-', label='p_final', linewidth=4)
-        # # plt.plot(x, f_true_pxt[i, 1, :], 'y-', label='f_p_initial', linewidth=4)
-        # plt.plot(x[:], f_true_pxt[i, -1, :], 'g-', label='f_p_final', linewidth=4)
-        # # plt.plot(x, f_noisy_pxt[i, 1, :], 'r.', label='p_initial')
-        # # plt.plot(x, f_noisy_pxt[i, -1, :], 'b^', label='p_final')
-        # plt.legend(fontsize=30)
-        # plt.ion()
-        # plt.pause(1.5)
-        # plt.close()
+        plt.figure(figsize=[12, 8])
+        plt.plot(x[:100], true_pxt[i, 0, :100], 'k-', label='p_initial', linewidth=4)
+        plt.plot(x[:100], true_pxt[i, -1, :100], 'r-', label='p_final', linewidth=4)
+        # plt.plot(x, f_true_pxt[i, 1, :], 'y-', label='f_p_initial', linewidth=4)
+        plt.plot(x[:100], f_true_pxt[i, -1, :100], 'g-', label='f_p_final', linewidth=4)
+        # plt.plot(x, f_noisy_pxt[i, 1, :], 'r.', label='p_initial')
+        # plt.plot(x, f_noisy_pxt[i, -1, :], 'b^', label='p_final')
+        plt.legend(fontsize=30)
+        plt.ion()
+        plt.pause(0.5)
+        plt.close()
         # sys.exit()
-        # plt.show()
+        plt.show()
 
     range_ = 100
     print(np.min(f_noisy_pxt[:, :, :range_]))
