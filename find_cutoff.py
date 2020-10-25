@@ -15,19 +15,19 @@ plt.rc('axes', linewidth=2)
 legend_properties = {'weight': 'bold'}
 
 process = 'Boltz'
-run_id = 2018
-run_ = 0
+run_id = 2019
+run_ = 1
 sigma = 0.02
-recur_win_gh = 5
-recur_win_p = 5
+recur_win_gh = 13
+recur_win_p = 13
 p_patience = 10
 seed = 19822012
 
 
-directory = '/home/liuwei/Cluster/{}/id{}_p{}_win{}{}_{}'.format(process, run_id, p_patience, recur_win_gh,
-                                                                 recur_win_p, run_)
-# directory = '/home/liuwei/GitHub/Result/{}/id{}_p{}_win{}{}_{}'.format(process, run_id, p_patience, recur_win_gh,
-#                                                                        recur_win_p, run_)
+# directory = '/home/liuwei/Cluster/{}/id{}_p{}_win{}{}_{}'.format(process, run_id, p_patience, recur_win_gh,
+#                                                                  recur_win_p, run_)
+directory = '/home/liuwei/GitHub/Result/{}/id{}_p{}_win{}{}_{}'.format(process, run_id, p_patience, recur_win_gh,
+                                                                       recur_win_p, run_)
 log = open(directory + '/train.log', 'r').readlines()
 # log = open('/home/liuwei/GitHub/Result/ghp/Boltz_id2017_p10_win1313_2.txt', 'r').readlines()
 data = np.load('./Pxt/{}_id{}_{}_sigma{}.npz'.format(process, run_id, seed, sigma))
@@ -90,7 +90,7 @@ for line in log[7:]:
 # print(test_list)
 sum_list = [a + b for a, b in zip(L1_list, L2_list)]
 idx = sum_list.index(min(sum_list))
-idx = 83
+idx = 217
 print(idx)
 print(g_list[idx], h_list[idx])
 print(ep_list[idx])

@@ -56,25 +56,27 @@ plt.rc('axes', linewidth=2)
 # directory = './Result/pseudoB/{}_id{}_p{}_win{}{}'.format(9, 0, 10, 9, 9)
 # directory = './Result/OU/{}_id{}_p{}_win{}{}'.format(0, 4, 10, 9, 9)
 # directory = './Result/Bessel/{}_id{}_p{}_win{}{}'.format(1, 6, 10, 9, 9)
-# directory = './Result/Bessel/id{}_{}_p{}_win{}{}'.format(2015, 6, 10, 13, 13)
-directory = '/home/liuwei/GitHub/FPE-Net-Results/Bessel/id0_1_p10_win1313_good'
-# directory = '/home/liuwei/Cluster/Bessel/id{}_p{}_win{}{}_{}'.format(2016, 10, 13, 13, 6)
+# directory = '/home/liuwei/Cluster/Bessel/id{}_{}_p{}_win{}{}'.format(2016, 2, 10, 13, 13)
+# directory = '/home/liuwei/GitHub/FPE-Net-Results/Bessel/id10_11_p10_win1313'
+directory = '/home/liuwei/GitHub/Result/Bessel/id10_p10_win1313_6'
+# directory = '/home/liuwei/Cluster/Bessel/id{}_p{}_win{}{}_{}'.format(2016, 10, 13, 13, 0)
 # real_g = 1/x - 0.2
 # real_h = 0.0013 * np.ones(x_points)
 
-iter_range = 50
+iter_range = 200
 error_g = np.zeros(iter_range)
 error_h = np.zeros(iter_range)
 error_p = np.zeros(iter_range)
 iter_no = np.arange(0, iter_range, 1)
 
-data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(2016, 19822012, 0.018))
+data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(10, 19822012, 0.018))
 x = data['x']
-x_points = x.shape[0]
-print(x_points)
-t = data['t']
-true_pxt = data['true_pxt']
-noisy_pxt = data['noisy_pxt']
+print(x)
+# x_points = x.shape[0]
+# print(x_points)
+# t = data['t']
+# true_pxt = data['true_pxt']
+# noisy_pxt = data['noisy_pxt']
 
 real_g = 1 / x - 0.2
 real_h = 0.5 * np.ones(x.shape)
@@ -99,18 +101,18 @@ test_list = np.asarray(test_list)
 pre_g = real_g
 pre_h = real_h
 
-print(x, p_weight)
-for iter_ in range(10, iter_range):
+# print(x, p_weight)
+for iter_ in range(0, iter_range):
     # iter_ = 140
-    # cal_g = np.load(directory + '/iter{}_gg_ng.npy'.format(iter_))
-    # error_g[iter_] = np.sum((cal_g - real_g)**2)
-    # cal_h = np.load(directory + '/iter{}_hh_ng.npy'.format(iter_))
-    # error_h[iter_] = np.sum((cal_h - real_h) ** 2)
-
-    cal_g = np.load(directory + '/gg_iter{}_smooth.npy'.format(iter_))
+    cal_g = np.load(directory + '/iter{}_gg_ng.npy'.format(iter_))
     error_g[iter_] = np.sum((cal_g - real_g)**2)
-    cal_h = np.load(directory + '/hh_iter{}_smooth.npy'.format(iter_))
+    cal_h = np.load(directory + '/iter{}_hh_ng.npy'.format(iter_))
     error_h[iter_] = np.sum((cal_h - real_h) ** 2)
+
+    # cal_g = np.load(directory + '/gg_iter{}_smooth.npy'.format(iter_))
+    # error_g[iter_] = np.sum((cal_g - real_g)**2)
+    # cal_h = np.load(directory + '/hh_iter{}_smooth.npy'.format(iter_))
+    # error_h[iter_] = np.sum((cal_h - real_h) ** 2)
 
     print(np.sum((cal_g - real_g)**2), np.sum(real_g**2))
     print(np.sum((cal_h - real_h) ** 2), np.sum(real_h ** 2))
@@ -131,10 +133,10 @@ for iter_ in range(10, iter_range):
     plt.figure(figsize=[12, 8])
     plt.plot(x, real_g, 'k-', linewidth=4, label='Real')
     plt.plot(x, cal_g, 'ro', linewidth=4, label='Cal')
-    # plt.plot(x, pre_g, 'b+', linewidth=4, label='Pre')
+    plt.plot(x, pre_g, 'b+', linewidth=4, label='Pre')
     # plt.plot(x, old_g, 'b+', linewidth=4, label='Old Cal')
     plt.axvline(x=0.25, ls='--', c='blue', linewidth=4)
-    plt.axvline(x=0.82, ls='--', c='blue', linewidth=4)
+    plt.axvline(x=0.81, ls='--', c='blue', linewidth=4)
     plt.xlabel('x',  fontweight='bold')
     plt.ylabel('g', fontsize=24, fontweight='bold')
     plt.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
@@ -146,9 +148,9 @@ for iter_ in range(10, iter_range):
     plt.figure(figsize=[12, 8])
     plt.plot(x, real_h, 'k-', linewidth=4, label='Real')
     plt.plot(x, cal_h, 'ro', linewidth=4, label='Cal')
-    # plt.plot(x, pre_h, 'b+', linewidth=4, label='Pre')
+    plt.plot(x, pre_h, 'b+', linewidth=4, label='Pre')
     plt.axvline(x=0.25, ls='--', c='blue', linewidth=4)
-    plt.axvline(x=0.82, ls='--', c='blue', linewidth=4)
+    plt.axvline(x=0.81, ls='--', c='blue', linewidth=4)
     # plt.plot(x, old_h, 'b+', linewidth=4, label='Old Cal')
     plt.xlabel('x',  fontweight='bold')
     plt.ylabel('h', fontsize=24, fontweight='bold')
@@ -163,7 +165,7 @@ for iter_ in range(10, iter_range):
     plt.plot(x, p_weight, 'k-', linewidth=4, label='Real')
     plt.axhline(y=np.max(p_weight)*0.1, ls='--', c='blue', linewidth=4)
     plt.axvline(x=0.25, ls='--', c='blue', linewidth=4)
-    plt.axvline(x=0.82, ls='--', c='blue', linewidth=4)
+    plt.axvline(x=0.81, ls='--', c='blue', linewidth=4)
     # # plt.plot(px, p_weight_OU, 'k-', linewidth=4, label='Cal')
     # # plt.plot(x, pre_h, 'b+', linewidth=4, label='Pre')
     # # plt.plot(x, old_h, 'b+', linewidth=4, label='Old Cal')

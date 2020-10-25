@@ -1,10 +1,10 @@
 # for Boltz
 
-RUN_ID = 2018
+RUN_ID = 2019
 T_GAP = 0.0005
-X_POINTS = 100
+X_POINTS = 200
 X_MIN = 0.
-X_MAX = 1.
+X_MAX = 2.
 
 SEED = 19822012
 

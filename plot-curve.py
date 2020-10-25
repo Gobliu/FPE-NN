@@ -16,19 +16,19 @@ plt.rc('font', **font)
 plt.rc('axes', linewidth=2)
 legend_properties = {'weight': 'bold'}
 
-process = 'OU'
-run_id = 2016
-run_ = 2
-sigma = 0.16
-recur_win_gh = 13
-recur_win_p = 13
+process = 'Boltz'
+run_id = 2018
+run_ = 0
+sigma = 0.02
+recur_win_gh = 17
+recur_win_p = 17
 p_patience = 10
 seed = 19822012
 
 
-# directory = '/home/liuwei/GitHub/Result/{}/id{}_p{}_win{}{}_{}'.format(process, run_id, p_patience, recur_win_gh,
-#                                                                        recur_win_p, run_)
-# log = open(directory + '/train.log', 'r').readlines()
+directory = '/home/liuwei/Cluster/{}/id{}_p{}_win{}{}_{}'.format(process, run_id, p_patience, recur_win_gh,
+                                                                 recur_win_p, run_)
+log = open(directory + '/train.log', 'r').readlines()
 # log = open('/home/liuwei/GitHub/Result/ghp/Boltz_id2017_p10_win1313_2.txt', 'r').readlines()
 data = np.load('./Pxt/{}_id{}_{}_sigma{}.npz'.format(process, run_id, seed, sigma))
 x = data['x']
@@ -54,7 +54,7 @@ denom = np.sum(win_y**2) / 4500
 denom_test = np.sum(true_pxt[:, :, -5:]**2)
 
 print(denom, denom_test)
-sys.exit()
+# sys.exit()
 
 pos = 0
 L1_list = []
@@ -105,7 +105,7 @@ plt.tick_params(direction='in', width=3, length=6)
 # # plt.ylim(-0.1, 0.4)
 # plt.yticks(np.arange(-0.05, 0.3, 0.1), fontweight='bold')
 # plt.legend(loc='upper left', bbox_to_anchor=[0.05, 0.85], ncol=1)
-# ax.text(.5, .9, 'OU', horizontalalignment='center', transform=ax.transAxes, fontweight='bold')
+ax.text(.5, .9, '$\mathbf{g_{error}}$', horizontalalignment='center', transform=ax.transAxes, fontsize=20)
 plt.ylabel('$\mathbf{g_{error}}$')
 plt.xlabel('iter',  fontweight='bold')
 
@@ -120,7 +120,7 @@ plt.tick_params(direction='in', width=3, length=6)
 # # plt.ylim(1.2895, 1.3105)
 # # plt.yticks(np.arange(1.29, 1.315, 0.01), fontweight='bold')
 # plt.legend(loc='upper left', bbox_to_anchor=[0.05, 0.85], ncol=1)
-# ax.text(.5, .9, 'OU', horizontalalignment='center', transform=ax.transAxes, fontweight='bold')
+ax.text(.5, .9, '$\mathbf{h_{error}}$', horizontalalignment='center', transform=ax.transAxes, fontsize=20)
 plt.ylabel('$\mathbf{h_{error}}$')
 plt.xlabel('iter',  fontweight='bold')
 
@@ -134,7 +134,7 @@ plt.plot(x, [100 * i for i in ep_list], 'k-', linewidth=3, label='$\epsilon$')
 # plt.yticks(fontweight='bold')
 # ax.set_yscale('log')
 # plt.legend(loc='upper left', bbox_to_anchor=[0.65, 0.85], ncol=1)
-# ax.text(.5, .9, 'Bessel', horizontalalignment='center', transform=ax.transAxes, fontweight='bold')
+ax.text(.5, .9, '$\mathbf{ \epsilon (1E-2)}$', horizontalalignment='center', transform=ax.transAxes, fontsize=20)
 plt.ylabel('$\mathbf{ \epsilon (1E-2)}$')
 plt.xlabel('iter',  fontweight='bold')
 
@@ -147,7 +147,7 @@ plt.tick_params(direction='in', width=3, length=6)
 # plt.ylim(4.995, 5.011)
 # plt.yticks(np.arange(5.00, 5.02, 0.01), fontweight='bold')
 # plt.legend(loc='upper left', bbox_to_anchor=[0.65, 0.85], ncol=1)
-# ax.text(.5, .9, 'Bessel', horizontalalignment='center', transform=ax.transAxes, fontweight='bold')
+ax.text(.5, .9, '$\mathbf{L_1}$', horizontalalignment='center', transform=ax.transAxes, fontsize=20)
 plt.ylabel('$\mathbf{L_1}$')
 plt.xlabel('iter',  fontweight='bold')
 
@@ -159,7 +159,7 @@ plt.tick_params(direction='in', width=3, length=6)
 # plt.ylim(-1.2, 0.5)
 # plt.yticks(np.arange(-1.00, 0.6, 0.4), fontweight='bold')
 # plt.legend(loc='upper left', bbox_to_anchor=[0.65, 0.85], ncol=1)
-# ax.text(.5, .9, 'Wealth', horizontalalignment='center', transform=ax.transAxes, fontweight='bold')
+ax.text(.5, .9, '$\mathbf{L_2}$', horizontalalignment='center', transform=ax.transAxes, fontsize=20)
 plt.ylabel('$\mathbf{L_2}$')
 plt.xlabel('iter',  fontweight='bold')
 
@@ -172,7 +172,7 @@ plt.tick_params(direction='in', width=3, length=6)
 # plt.ylim(-0.2, 2.5)
 # plt.yticks(np.arange(0.00, 2.02, 1), fontweight='bold')
 # plt.legend(loc='upper left', bbox_to_anchor=[0.65, 0.85], ncol=1)
-# ax.text(.5, .9, 'Wealth', horizontalalignment='center', transform=ax.transAxes, fontweight='bold')
+ax.text(.5, .9, '$\mathbf{L_{test}}$', horizontalalignment='center', transform=ax.transAxes, fontsize=20)
 plt.ylabel('$\mathbf{L_{test}}$')
 plt.xlabel('iter',  fontweight='bold')
 plt.show()

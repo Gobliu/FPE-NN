@@ -34,8 +34,8 @@ gh_epoch = config.EPOCH
 p_epoch = 1
 patience = config.PATIENCE
 batch_size = config.BATCH_SIZE
-recur_win_gh = 9
-recur_win_p = 9
+recur_win_gh = 13
+recur_win_p = 13
 verb = 2
 p_epoch_factor = 5
 gh = 'lsq'         # check
@@ -43,6 +43,7 @@ n_iter = 500
 test_range = 5
 sf_range = 7
 t_sro = 7
+x_r = [6, 81]
 
 
 def test_steps(x, g, h, data):
@@ -116,7 +117,6 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     noisy_pxt[noisy_pxt < 0] = 0
 
     log = open(directory + '/train.log', 'w')
-    # log.write('./Pxt/Boltz_id{}_{}_sigma{}.npz \n'.format(run_id, seed, sigma))
     log.write('learning rate gh: {} \n'.format(learning_rate_gh))
     log.write('learning rate p: {} \n'.format(learning_rate_p))
     log.write('t_sro: {} \n'.format(t_sro))
@@ -224,10 +224,10 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
         log.write('Iter: {} \n'.format(iter_))
 
         # smooth
-        # gg_v_ng[:, 0, 0] = GaussianSmooth.gaussian1d(gg_v_ng[:, 0, 0], sigma=1 / (smooth_gh * iter_+1))
-        # hh_v_ng[:, 0, 0] = GaussianSmooth.gaussian1d(hh_v_ng[:, 0, 0], sigma=1 / (smooth_gh * iter_+1))
-        gg_v_ng[:, 0, 0] = signal.savgol_filter(gg_v_ng[:, 0, 0], sf_range, 2)
-        hh_v_ng[:, 0, 0] = signal.savgol_filter(hh_v_ng[:, 0, 0], sf_range, 2)
+        gg_v_ng[:, 0, 0] = GaussianSmooth.gaussian1d(gg_v_ng[:, 0, 0], sigma=1 / (smooth_gh * iter_+1))
+        hh_v_ng[:, 0, 0] = GaussianSmooth.gaussian1d(hh_v_ng[:, 0, 0], sigma=1 / (smooth_gh * iter_+1))
+        # gg_v_ng[:, 0, 0] = signal.savgol_filter(gg_v_ng[:, 0, 0], sf_range, 2)
+        # hh_v_ng[:, 0, 0] = signal.savgol_filter(hh_v_ng[:, 0, 0], sf_range, 2)
 
         # train gh
         gh_nn_ng.get_layer(name=name + 'g').set_weights([gg_v_ng])
@@ -253,6 +253,9 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
         log.write('Weighted Error of g: {}, h: {}\n'.format(
                                     np.sum(p_weight*(gg_v_ng[:, 0, 0] - real_g)**2)/np.sum(p_weight*real_g**2),
                                     np.sum(p_weight*(hh_v_ng[:, 0, 0] - real_h)**2)/np.sum(p_weight*real_h**2)))
+        log.write('Center Error of g: {}, h: {}\n'.format(
+                  np.sum((gg_v_ng[x_r[0]:x_r[1], 0, 0] - real_g[x_r[0]:x_r[1]])**2)/np.sum(real_g[x_r[0]:x_r[1]]**2),
+                  np.sum((hh_v_ng[x_r[0]:x_r[1], 0, 0] - real_h[x_r[0]:x_r[1]])**2)/np.sum(real_h[x_r[0]:x_r[1]]**2)))
         log.write('Error of g: {}, h: {} \n'.format(np.sum((gg_v_ng[:, 0, 0] - real_g)**2),
                                                     np.sum((hh_v_ng[:, 0, 0] - real_h)**2)))
 

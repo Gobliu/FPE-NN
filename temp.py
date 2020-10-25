@@ -12,7 +12,8 @@ test_range = 5
 t_sro = 7
 sigma = 0.018
 seed = 19822012
-data = np.load('/home/liuwei/GitHub/IFPE-Net/Pxt/Bessel/B_f_0_pxt_19822012_sigma0.05.npy')
+# data = np.load('/home/liuwei/GitHub/IFPE-Net/Pxt/Bessel/B_f_0_pxt_19822012_sigma0.05.npy')
+data = np.load('/home/liuwei/GitHub/IFPE-Net/Pxt/Bessel/B_f_10_pxt_19822012_sigma0.05.npy')
 
 x = data[0, 0, :]
 true_pxt = data[:, 1:, :]
@@ -60,9 +61,11 @@ plt.plot(x, t_lsq_h, 'b+')
 plt.plot(x, real_h, 'k')
 plt.show()
 
-np.random.seed(seed)
-noise = np.random.randn(100, 50, 100)  # normal distribution center N(0, 1) error larger
-noisy_pxt = true_pxt + sigma * noise
+# np.random.seed(seed)
+# noise = np.random.randn(100, 50, 100)  # normal distribution center N(0, 1) error larger
+# noisy_pxt = true_pxt + sigma * noise
+noisy_pxt = np.load('/home/liuwei/GitHub/IFPE-Net/Pxt/Bessel/B_f_10_noisy_19822012_sigma0.05.npy')
+noisy_pxt = noisy_pxt[:, 1:, :]
 
 range_ = 100
 print(np.min(noisy_pxt[:, :, :range_]))
@@ -72,5 +75,5 @@ print(np.sum(error ** 2))
 print(np.sum(true_pxt[:, :, :range_] ** 2))
 print(np.sum(error ** 2) / np.sum(true_pxt[:, :, :range_] ** 2))
 print((np.sum(error ** 2) / np.sum(true_pxt[:, :, :range_] ** 2)) ** 0.5)
-np.savez_compressed('./Pxt/Bessel_id{}_{}_sigma{}'.format(2012, seed, sigma), x=x[:range_], t=t,
+np.savez_compressed('./Pxt/Bessel_id{}_{}_sigma{}'.format(10, seed, sigma), x=x[:range_], t=t,
                     true_pxt=true_pxt[:, :, :range_], noisy_pxt=noisy_pxt[:, :, :range_])
