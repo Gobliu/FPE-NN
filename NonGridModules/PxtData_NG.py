@@ -89,12 +89,18 @@ class PxtData_NG:
                 win_x[sample, t_idx, :, 0] = np.copy(data[sample, t_idx, :])
                 start = t_idx - (recur_win // 2)
                 for i_ in range(recur_win):
+                    # if start + i_ < 0:
+                    #     win_y[sample, t_idx, :, i_] = np.copy(data[sample, 0, :])
+                    #     win_t[sample, t_idx, i_] = t_mat[sample, 0, 0] - t_mat[sample, t_idx, 0]
+                    # elif start + i_ >= d2:
+                    #     win_y[sample, t_idx, :, i_] = np.copy(data[sample, -1, :])
+                    #     win_t[sample, t_idx, i_] = t_mat[sample, -1, 0] - t_mat[sample, t_idx, 0]
                     if start + i_ < 0:
-                        win_y[sample, t_idx, :, i_] = np.copy(data[sample, 0, :])
-                        win_t[sample, t_idx, i_] = t_mat[sample, 0, 0] - t_mat[sample, t_idx, 0]
+                        win_y[sample, t_idx, :, i_] = np.copy(data[sample, abs(start+i_)-1, :])
+                        win_t[sample, t_idx, i_] = t_mat[sample, abs(start+i_)-1, 0] - t_mat[sample, t_idx, 0]
                     elif start + i_ >= d2:
-                        win_y[sample, t_idx, :, i_] = np.copy(data[sample, -1, :])
-                        win_t[sample, t_idx, i_] = t_mat[sample, -1, 0] - t_mat[sample, t_idx, 0]
+                        win_y[sample, t_idx, :, i_] = np.copy(data[sample, 2*d2-start-i_-1, :])
+                        win_t[sample, t_idx, i_] = t_mat[sample, 2*d2-start-i_-1, 0] - t_mat[sample, t_idx, 0]
                     else:
                         win_y[sample, t_idx, :, i_] = np.copy(data[sample, start + i_, :])
                         win_t[sample, t_idx, i_] = t_mat[sample, start + i_, 0] - t_mat[sample, t_idx, 0]

@@ -122,8 +122,8 @@ def ou_main_run():
 
         # idx_noise = np.random.randint(-int(0.3*t_factor), int(0.4*t_factor), size=t_points)
         # print(idx_noise)
-        pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor)) + idx_noise[i]        # id 2015 or 2017 or 2019
-        # pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor))                         # id 2016 or 2018
+        pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor)) + idx_noise[i]        # odd id
+        # pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor))                     # even id
         pxt_idx[pxt_idx < 0] = 0
         # print(pxt_idx)
         pxt_idx.sort()
@@ -134,14 +134,14 @@ def ou_main_run():
 
         f_true_pxt[i, :, :] = pxt[pxt_idx]
 
-        # addition noise
-        f_noisy_p = pxt[pxt_idx] + sigma * noise[i, ...]
+    # addition noise
+    # f_noisy_p = f_true_pxt + sigma * noise[i, ...]        # 2015+
+    f_noisy_pxt = f_true_pxt + sigma * noise * f_true_pxt
 
-        f_noisy_p[f_noisy_p < 0] = 0
-        #
-        f_noisy_pxt[i, :, :] = f_noisy_p
-        print(np.sum(f_noisy_pxt[i, -1, :]))
+    print(np.min(f_noisy_pxt))
+    f_noisy_pxt[f_noisy_pxt < 0] = 0
 
+    for i in range(n_sample):
         plt.figure(figsize=[12, 8])
         plt.plot(x[:], true_pxt[i, 1, :], 'k-', label='p_initial', linewidth=4)
         plt.plot(x[:], true_pxt[i, -1, :], 'r-', label='p_final', linewidth=4)
