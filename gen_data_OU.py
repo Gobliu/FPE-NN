@@ -53,51 +53,22 @@ def create_ou(n_point, gap):
 
 def histogram_ou(x, mu_var):
     p = np.zeros((mu_var.shape[0], x_points))
-    # p_dx = np.zeros((t_points, x_points))
-    # p_dxx = np.zeros((t_points, x_points))
 
     for i in range(mu_var.shape[0]):
         p[i] = np.exp(-(x-mu_var[i, 0])**2/(2*mu_var[i, 1])) / np.sqrt(2 * np.pi * mu_var[i, 1])
-        # p_dx[i] = - (x-mu_var[i, 0]) * p[i] / mu_var[i, 1]
-        # p_dxx[i] = ((x-mu_var[i, 0])**2 - mu_var[i, 1]) * p[i] / mu_var[i, 1]**2
-    # return p, p_dx, p_dxx
     return p
-
-
-# def p_initial(x, mu_min, mu_max, sigma_min, sigma_max, gau_no=2, seed=None):
-#     p0 = np.zeros(x_points)
-#     x = np.linspace(x_min, x_max, num=x_points, endpoint=False)
-#     print(x_gap)
-#     if seed is not None:
-#         np.random.seed(seed)
-#     for i in range(gau_no):
-#         mu = np.random.random() * (mu_max - mu_min) + mu_min
-#         var = np.random.random() * (sigma_max - sigma_min) + sigma_min
-#         print('mu {} sigma {}'.format(mu, var))
-#         p0 += np.exp(-(x - mu)**2 / (2 * var ** 2))
-#     p0 /= np.sum(p0)
-#     p0 *= x_points
-#     # print(np.sum(p0))
-#     return p0
 
 
 def ou_main_run():
     x = np.linspace(x_min, x_max, num=x_points, endpoint=False)
-    # g = THETA * x
-    # h = D * np.ones(x_points)
+
     print('x:', x)
     true_pxt = np.zeros((n_sample, t_points, x_points))
     true_pxt[:, 0, :] = x
     noisy_pxt = np.zeros((n_sample, t_points, x_points))
     noisy_pxt[:, 0, :] = x
     t = np.zeros((n_sample, t_points, 1))
-    # total_p_dx = np.zeros((n_sample, t_points, x_points))
-    # total_p_dxx = np.zeros((n_sample, t_points, x_points))
 
-    # f_true_pxt = np.zeros((n_sample, t_points, x_points))
-    # f_true_pxt[:, 0, :] = x
-    # f_noisy_pxt = np.zeros((n_sample, t_points, x_points))
-    # f_noisy_pxt[:, 0, :] = x
     np.random.seed(seed)
     noise = np.random.randn(n_sample, t_points, x_points)  # normal distribution center N(0, 1) error larger
     t_factor = 10
@@ -109,7 +80,7 @@ def ou_main_run():
         print('Generating sample {}'.format(i))
         mu_var, t_one_sample = create_ou(t_points * t_factor, t_gap / t_factor)
         p = histogram_ou(x, mu_var)
-        pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor)) + idx_noise[i]        # id 2015 or 2017
+        pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor)) + idx_noise[i]        # odd id
         pxt_idx[pxt_idx < 0] = 0
         pxt_idx.sort()
         print('max dis:', np.max(abs(pxt_idx[1:] - pxt_idx[:-1])))
@@ -122,26 +93,17 @@ def ou_main_run():
         # total_p_dx[i] = p_dx
         # total_p_dxx[i] = p_dxx
         print(np.sum(true_pxt[i, -1, :]))
-    noisy_pxt = true_pxt + sigma * noise
-        # t_factor = 10
-        # # p0 = p_initial(x, mu_min=0.5, mu_max=0.7, sigma_min=0.06, sigma_max=0.1, gau_no=2,
-        # #                seed=int(100 * seed_list[i]))
-        # pxt = FPF.ghx2pxt(g, h, p[0], x_gap, t_gap=t_gap/t_factor, t_points=t_points*t_factor, rk=4, t_sro=7)
-        # f_true_pxt[i, 1:, :] = pxt[0:-1:t_factor, :]
-        #
-        # f_noisy_p = pxt[0:-1:t_factor, :] + sigma * noise[i, ...]
-        # print('E P0', np.sum((p[0, :] - noisy_p[0, :]) ** 2))
-        # print('Sum', np.sum(p[-1]) * x_gap)
-        # f_noisy_pxt[i, 1:, :] = f_noisy_p
+
+    # addition noise
+    # noisy_pxt = true_pxt + sigma * noise        # 2015+
+    noisy_pxt = true_pxt + sigma * noise * true_pxt
+    noisy_pxt[noisy_pxt < 0] = 0
 
     # for i in range(n_sample):
     #     plt.figure()
     #     plt.plot(x, true_pxt[i, 1, :], 'k-', label='p_initial')
     #     plt.plot(x, true_pxt[i, -1, :], 'r-', label='p_final')
-    #     # plt.plot(x, f_true_pxt[i, 1, :], 'y-', label='p_initial')
-    #     # plt.plot(x, f_true_pxt[i, -1, :], 'b-', label='p_final')
-    #     # plt.plot(x, f_noisy_pxt[i, 1, :], 'y*', label='p_initial')
-    #     # plt.plot(x, f_noisy_pxt[i, -1, :], 'b^', label='p_final')
+    #     plt.plot(x, noisy_pxt[i, -1, :], 'b^', label='p_final')
     #     plt.legend()
     #     plt.ion()
     #     plt.pause(0.6)
