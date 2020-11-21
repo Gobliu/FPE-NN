@@ -141,20 +141,20 @@ def ou_main_run():
     print(np.min(f_noisy_pxt))
     f_noisy_pxt[f_noisy_pxt < 0] = 0
 
-    for i in range(n_sample):
-        plt.figure(figsize=[12, 8])
-        plt.plot(x[:], true_pxt[i, 1, :], 'k-', label='p_initial', linewidth=4)
-        plt.plot(x[:], true_pxt[i, -1, :], 'r-', label='p_final', linewidth=4)
-        # plt.plot(x, f_true_pxt[i, 1, :], 'y-', label='f_p_initial', linewidth=4)
-        plt.plot(x[:], f_true_pxt[i, -1, :], 'g-', label='f_p_final', linewidth=4)
-        # plt.plot(x, f_noisy_pxt[i, 1, :], 'r.', label='p_initial')
-        # plt.plot(x, f_noisy_pxt[i, -1, :], 'b^', label='p_final')
-        plt.legend(fontsize=30)
-        plt.ion()
-        plt.pause(0.6)
-        plt.close()
-        # sys.exit()
-        # plt.show()
+    # for i in range(n_sample):
+    #     plt.figure(figsize=[12, 8])
+    #     plt.plot(x[:], true_pxt[i, 1, :], 'k-', label='p_initial', linewidth=4)
+    #     plt.plot(x[:], true_pxt[i, -1, :], 'r-', label='p_final', linewidth=4)
+    #     # plt.plot(x, f_true_pxt[i, 1, :], 'y-', label='f_p_initial', linewidth=4)
+    #     plt.plot(x[:], f_true_pxt[i, -1, :], 'g-', label='f_p_final', linewidth=4)
+    #     # plt.plot(x, f_noisy_pxt[i, 1, :], 'r.', label='p_initial')
+    #     # plt.plot(x, f_noisy_pxt[i, -1, :], 'b^', label='p_final')
+    #     plt.legend(fontsize=30)
+    #     plt.ion()
+    #     plt.pause(0.6)
+    #     plt.close()
+    #     # sys.exit()
+    #     # plt.show()
 
     range_ = 100
     print(np.min(f_noisy_pxt[:, :, :range_]))

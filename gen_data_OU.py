@@ -21,8 +21,10 @@ sigma = config.SIGMA
 
 np.random.seed(seed)
 
-y_min = 0.04   # ID 11
-y_max = 0.08
+# y_min = 0.04  # the rest
+# y_max = 0.08
+y_min = 0.05    # id 3
+y_max = 0.07
 t_init_min = 0.03
 t_init_max = 0.05
 D = 0.0013
@@ -99,15 +101,15 @@ def ou_main_run():
     noisy_pxt = true_pxt + sigma * noise * true_pxt
     noisy_pxt[noisy_pxt < 0] = 0
 
-    # for i in range(n_sample):
-    #     plt.figure()
-    #     plt.plot(x, true_pxt[i, 1, :], 'k-', label='p_initial')
-    #     plt.plot(x, true_pxt[i, -1, :], 'r-', label='p_final')
-    #     plt.plot(x, noisy_pxt[i, -1, :], 'b^', label='p_final')
-    #     plt.legend()
-    #     plt.ion()
-    #     plt.pause(0.6)
-    #     plt.close()
+    for i in range(n_sample):
+        plt.figure()
+        plt.plot(x, true_pxt[i, 1, :], 'k-', label='p_initial')
+        plt.plot(x, true_pxt[i, -1, :], 'r-', label='p_final')
+        plt.plot(x, noisy_pxt[i, -1, :], 'b^', label='p_final')
+        plt.legend()
+        plt.ion()
+        plt.pause(0.6)
+        plt.close()
 
     print(np.min(noisy_pxt[:, :, :110]))
     # print(f_true_pxt[0, 0, :])
