@@ -46,14 +46,31 @@ t_sro = 7
 
 t_point = 30
 
-FTSE_fragment = [[0, 30], [30, 60], [94, 124], [124, 154], [154, 184], [189, 219], [219, 249], [286, 316], [316, 346],
-                 [389, 419], [419, 449], [449, 479], [497, 527], [533, 563], [563, 593], [691, 721], [721, 751],
-                 [751, 781], [781, 811], [811, 841], [841, 871], [908, 938], [938, 968], [990, 1020], [1042, 1072],
-                 [1074, 1104], [1108, 1138], [1184, 1214], [1214, 1244], [1264, 1294],
-                 [1402, 1432], [1432, 1462], [1462, 1492], [1492, 1522], [1524, 1554], [1564, 1594], [1594, 1624],
-                 [1624, 1654], [1654, 1684], [1684, 1714], [1714, 1744], [1770, 1800], [1800, 1830], [1845, 1875],
-                 [1875, 1905], [1905, 1935], [1935, 1965], [1965, 1995], [1995, 2025], [2025, 2055], [2137, 2167],
-                 [2167, 2197], [2214, 2244], [2244, 2274], [2313, 2343]]
+F_frag = [[0, 30], [30, 60], [94, 124], [124, 154], [154, 184], [189, 219], [219, 249], [286, 316], [316, 346],
+          [389, 419], [419, 449], [449, 479], [497, 527], [533, 563], [563, 593], [691, 721], [721, 751],
+          [751, 781], [781, 811], [811, 841], [841, 871], [908, 938], [938, 968], [990, 1020], [1042, 1072],
+          [1074, 1104], [1108, 1138], [1184, 1214], [1214, 1244], [1264, 1294],
+          [1402, 1432], [1432, 1462], [1462, 1492], [1492, 1522], [1524, 1554], [1564, 1594], [1594, 1624],
+          [1624, 1654], [1654, 1684], [1684, 1714], [1714, 1744], [1770, 1800], [1800, 1830], [1845, 1875],
+          [1875, 1905], [1905, 1935], [1935, 1965], [1965, 1995], [1995, 2025], [2025, 2055], [2137, 2167],
+          [2167, 2197], [2214, 2244], [2244, 2274], [2313, 2343]]
+
+N_frag = [[14, 44], [44, 74], [74, 104], [111, 141], [141, 171], [171, 201], [201, 231], [231, 261], [278, 308],
+          [308, 338], [338, 368], [389, 419], [419, 449], [514, 544], [544, 574], [574, 604], [604, 634], [665, 695],
+          [728, 758], [769, 799], [799, 829], [829, 859], [859, 889], [889, 919], [931, 961], [961, 991], [991, 1021],
+          [1107, 1137], [1137, 1167], [1167, 1197], [1197, 1227], [1236, 1266], [1266, 1296], [1347, 1377],
+          [1503, 1533], [1533, 1563], [1563, 1593], [1593, 1623], [1623, 1653], [1653, 1683], [1683, 1713],
+          [1713, 1743], [1820, 1850], [1855, 1885], [1976, 2006], [2006, 2036], [2040, 2070], [2096, 2126],
+          [2135, 2165], [2165, 2195], [2195, 2225], [2225, 2255], [2317, 2347]]
+
+D_frag = [[0, 30], [30, 60], [60, 90], [128, 158], [158, 188], [188, 218], [218, 248], [274, 304], [304, 334],
+          [334, 364], [409, 439], [477, 507], [533, 563], [563, 593], [593, 623], [723, 753], [769, 799], [799, 829],
+          [829, 859], [859, 889], [890, 920], [920, 950], [970, 1000], [1076, 1106], [1106, 1136], [1136, 1166],
+          [1166, 1196], [1196, 1226], [1233, 1263], [1281, 1311], [1330, 1360], [1416, 1446], [1446, 1476],
+          [1476, 1506], [1524, 1554], [1554, 1584], [1584, 1614], [1627, 1657], [1661, 1691], [1691, 1721],
+          [1721, 1751], [1770, 1800], [1800, 1830], [1845, 1875], [1875, 1905], [1916, 1946], [1946, 1976],
+          [1976, 2006], [2006, 2036], [2036, 2066], [2066, 2096], [2096, 2126], [2134, 2164], [2164, 2194],
+          [2194, 2224], [2224, 2254], [2297, 2327], [2327, 2357]]
 
 
 def test_one_euler(x, g, h, data):
@@ -101,13 +118,27 @@ def main(stock, smooth_gh=0.1, smooth_p=False):
 
     data = np.loadtxt('./stock/data_x.dat')
     # data *= 100
-    n_sequence = len(FTSE_fragment)
-    print(n_sequence)
-    noisy_pxt = np.zeros((n_sequence, t_point, x_points))
-    for s in range(n_sequence):
-        # print(FTSE_fragment[s], FTSE_fragment[s][1] - FTSE_fragment[s][0])
-        start, end = FTSE_fragment[s]
-        noisy_pxt[s, :, :] = data[start: end, :100]
+    if stock == 'FTSE':
+        n_sequence = len(F_frag)
+        print(n_sequence)
+        noisy_pxt = np.zeros((n_sequence, t_point, x_points))
+        for s in range(n_sequence):
+            start, end = F_frag[s]
+            noisy_pxt[s, :, :] = data[start: end, :100]
+    elif stock == 'Nikki':
+        n_sequence = len(N_frag)
+        print(n_sequence)
+        noisy_pxt = np.zeros((n_sequence, t_point, x_points))
+        for s in range(n_sequence):
+            start, end = N_frag[s]
+            noisy_pxt[s, :, :] = data[start: end, 200:]
+    elif stock == 'DOW':
+        n_sequence = len(N_frag)
+        print(n_sequence)
+        noisy_pxt = np.zeros((n_sequence, t_point, x_points))
+        for s in range(n_sequence):
+            start, end = N_frag[s]
+            noisy_pxt[s, :, :] = data[start: end, 100:200]
 
     t = np.zeros((n_sequence, t_point, 1))
     for i in range(t_point):
@@ -173,23 +204,12 @@ def main(stock, smooth_gh=0.1, smooth_p=False):
     train_gh_y_ng = np.copy(win_y)
     train_gh_t_ng = np.copy(win_t)
 
-    # win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(smooth_data.train_data, smooth_data.train_t, valid_win)
-    # valid_gh_x = np.copy(win_x)
-    # valid_gh_y = np.copy(win_y)
-    # valid_gh_t = np.copy(win_t)
-
-    # win_x, win_t, win_y, win_id = PxtData_NG.get_recur_win_e2e(update_data.train_data, update_data.train_t, recur_win_p)
     win_x, win_t, win_y, win_id = PxtData_NG.get_recur_win_e2e(noisy_data.train_data, noisy_data.train_t, recur_win_p)
     # win_x, win_t, win_y, win_id = PxtData_NG.get_recur_win_e2e_cw(noisy_data.train_data, noisy_data.train_t,
     #                                                               recur_win_p, cw)
     train_p_p_ng = np.copy(win_x)
     train_p_y_ng = np.copy(win_y)
     train_p_t_ng = np.copy(win_t)
-
-    # win_x, win_t, win_y, win_id = PxtData_NG.get_recur_win_e2e(update_data.train_data, update_data.train_t, valid_win)
-    # # valid_p_p = np.copy(win_x)
-    # valid_p_y = np.copy(win_y)
-    # valid_p_t = np.copy(win_t)
 
     n_sample = train_p_p_ng.shape[0]
     iter_p_ = 0
@@ -252,8 +272,6 @@ def main(stock, smooth_gh=0.1, smooth_p=False):
 
         L_P = total_train_p_loss_after
 
-        # update_data.train_data = padding_by_axis2_smooth(update_data.train_data, 5)
-
         win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(update_data.train_data, update_data.train_t,
                                                               recur_win_gh)
         train_gh_x_ng = np.copy(win_x)
@@ -265,12 +283,6 @@ def main(stock, smooth_gh=0.1, smooth_p=False):
         # win_x, win_t, win_y, win_id = PxtData_NG.get_recur_win_e2e_cw(noisy_data.train_data, noisy_data.train_t,
         #                                                               recur_win_p, cw)
         train_p_p_ng = np.copy(win_x)
-
-        # win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(update_data.train_data, update_data.train_t,
-        #                                                       valid_win)
-        # valid_gh_x = np.copy(win_x)
-        # valid_gh_y = np.copy(win_y)
-        # valid_gh_t = np.copy(win_t)  # key??
 
         log = open(directory + '/train.log', 'a')
         log.write('Total error of p training before: {}, after: {}, Dif P {} {}, Total loss: {}\n'
@@ -301,5 +313,5 @@ def main(stock, smooth_gh=0.1, smooth_p=False):
 
 
 if __name__ == '__main__':
-    main(stock='FTSE', smooth_gh=0.1, smooth_p=True)
+    main(stock='Nikki', smooth_gh=0.1, smooth_p=True)
     # stock could choose 'FTSE', 'DOW', 'Nikki'

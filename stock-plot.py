@@ -20,7 +20,7 @@ x_max = 0.015
 x_points = 100
 # x_points = config.X_POINTS
 # print(x_gap)
-t_gap = 0.001
+t_gap = 1
 
 learning_rate_gh = 1e-6
 gh_epoch = 1000
@@ -114,10 +114,10 @@ print(win_y.shape, np.sum(win_y**2))
 # denom = np.sum(win_y**2)
 
 # directory = '/home/liuwei/GitHub/Result/Stock/{}_p{}_win{}{}_{}'.format('FTSE', 20, 5, 5, 16)
-directory = '/home/liuwei/GitHub/Result/Stock/{}_p{}_win{}{}_{}_v3'.format('FTSE', 20, 5, 5, 0)
+directory = '/home/liuwei/GitHub/Result/Stock/{}_p{}_win{}{}_{}_v3'.format('FTSE', 20, 5, 5, 3)
 # directory = '/home/liuwei/Cluster/Stock/{}_p{}_win{}{}_{}'.format('Nikki', 20, 9, 9, 2)
 iter_ = 0
-iter_ = 185
+iter_ = 167
 data_ = np.load(directory + '/iter{}.npz'.format(iter_))
 g = data_['g'] * t_gap
 h = data_['h'] * t_gap
@@ -144,11 +144,14 @@ print(sigma)
 predict_one_euler = test_one_euler(x, g, h, noisy_data)
 predict_GBM = test_one_euler(x, mu*x, sigma*h**2, noisy_data)
 for pos in range(test_range):
-    error_one_euler = predict_one_euler[:, pos, :] - noisy_data.test_data[:, pos, :]
+    error_one_euler = np.sum((predict_one_euler[:, pos, :] - noisy_data.test_data[:, pos, :])**2, axis=1)
     error_GBM = predict[:, pos, :] - noisy_data.test_data[:, pos, :]
-    print(np.sum(error_one_euler ** 2))
-    print(np.sum(error_GBM ** 2))
-    print(np.std(error_one_euler), np.std(error_GBM))
+    print(error_one_euler[:10])
+    print(np.mean(error_one_euler))
+    print(np.sum(error_one_euler), error_one_euler.shape)
+    # print(np.mean(error_one_euler ** 2, axis=0))
+    # print(np.mean(error_GBM ** 2, axis=0))
+    # print(np.std(error_one_euler), np.std(error_GBM))
     # print('{}'.format(np.sum((predict_one_euler[:, pos, :] - noisy_data.test_data[:, pos, :]) ** 2)))
     # print('{}'.format(np.sum((predict_GBM[:, pos, :] - noisy_data.test_data[:, pos, :]) ** 2)))
 # ##########################################
@@ -271,9 +274,9 @@ plt.xlabel('x',  fontweight='bold')
 
 # ax = plt.subplot(2, 3, 6)
 # plt.text(-0.1, 1.10, 'F', fontsize=20, transform=ax.transAxes, fontweight='bold', va='top')
-# plt.plot([1, 2, 3, 4, 5], [0.0435, 0.0760, 0.1139, 0.1327, 0.1554], 'b-o', linewidth=3, ms=10, label='$DRN$')
-# plt.errorbar([1, 2, 3, 4, 5], [0.0520, 0.0936, 0.0994, 0.0980, 0.1270],
-#              [0.00361, 0.00484, 0.00499, 0.00495, 0.00564], 'k-^', linewidth=3, ms=10, label='$FPE NN$')
+# # plt.plot([1, 2, 3, 4, 5], [0.0435, 0.0760, 0.1139, 0.1327, 0.1554], 'b-o', linewidth=3, ms=10, label='$DRN$')
+# plt.errorbar([1, 2, 3, 4, 5], [0.0422, 0.0627, 0.0988, 0.1374, 0.1455],
+#              [0.0028, 0.0034, 0.0042, 0.0050, 0.0051], 'k-^', linewidth=3, ms=10, label='$FPE NN$')
 # plt.errorbar([1, 2, 3, 4, 5], [0.0520, 0.0937, 0.0996, 0.0982, 0.1273],
 #              [0.00361, 0.00484, 0.00499, 0.00496, 0.00564], 'r-^', linewidth=3, ms=10, label='$FPE NN$')
 # plt.tick_params(direction='in', width=3, length=6)
