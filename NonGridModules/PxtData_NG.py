@@ -111,6 +111,46 @@ class PxtData_NG:
         win_t = win_t.reshape((-1, 1, recur_win))
         return win_x, win_t, win_y, win_id
 
+    @staticmethod
+    def get_recur_win_e2e_cw(data, t_mat, recur_win, cw):
+        assert data.ndim == 3, 'Input data should be a 3D matrix.'
+        assert t_mat.ndim == 3, 'Input t should be a 3D matrix.'
+        d1, d2, d3 = data.shape
+        print('d1 {}, d2 {}, d3 {}'.format(d1, d2, d3))
+        win_x = np.zeros((d1, d2, d3, 1))
+        win_y = np.zeros((d1, d2, d3, recur_win + cw))
+        win_id = np.zeros((d1, d2, 2), dtype=int)
+        win_t = np.zeros((d1, d2, recur_win + cw))
+        for sample in range(d1):
+            for t_idx in range(d2):
+                win_x[sample, t_idx, :, 0] = np.copy(data[sample, t_idx, :])
+                start = t_idx - (recur_win // 2)
+                for i_ in range(recur_win):
+                    # if start + i_ < 0:
+                    #     win_y[sample, t_idx, :, i_] = np.copy(data[sample, 0, :])
+                    #     win_t[sample, t_idx, i_] = t_mat[sample, 0, 0] - t_mat[sample, t_idx, 0]
+                    # elif start + i_ >= d2:
+                    #     win_y[sample, t_idx, :, i_] = np.copy(data[sample, -1, :])
+                    #     win_t[sample, t_idx, i_] = t_mat[sample, -1, 0] - t_mat[sample, t_idx, 0]
+                    if start + i_ < 0:
+                        win_y[sample, t_idx, :, i_] = np.copy(data[sample, abs(start + i_) - 1, :])
+                        win_t[sample, t_idx, i_] = t_mat[sample, abs(start + i_) - 1, 0] - t_mat[sample, t_idx, 0]
+                    elif start + i_ >= d2:
+                        win_y[sample, t_idx, :, i_] = np.copy(data[sample, 2 * d2 - start - i_ - 1, :])
+                        win_t[sample, t_idx, i_] = t_mat[sample, 2 * d2 - start - i_ - 1, 0] - t_mat[sample, t_idx, 0]
+                    else:
+                        win_y[sample, t_idx, :, i_] = np.copy(data[sample, start + i_, :])
+                        win_t[sample, t_idx, i_] = t_mat[sample, start + i_, 0] - t_mat[sample, t_idx, 0]
+                for i_ in range(recur_win, recur_win+cw):
+                    win_y[sample, t_idx, :, i_] = np.copy(data[sample, t_idx, :])
+                    win_t[sample, t_idx, i_] = 0
+                win_id[sample, t_idx, :] = [sample, t_idx]
+        win_x = win_x.reshape((-1, d3, 1))
+        win_y = win_y.reshape((-1, d3, recur_win))
+        win_id = win_id.reshape((-1, 2))
+        win_t = win_t.reshape((-1, 1, recur_win))
+        return win_x, win_t, win_y, win_id
+
     def process_for_recur_net(self, recur_win=7):
         assert self.train_data is not None, 'Train data is empty.'
         assert self.valid_data is not None, 'Train data is empty.'

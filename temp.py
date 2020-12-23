@@ -1,163 +1,85 @@
-import sys
-import os
-
 import numpy as np
-from scipy import signal
-from keras import callbacks, backend, losses
 import matplotlib.pyplot as plt
 
-from NonGridModules.PDM_NG import PDM_NG
-from NonGridModules.PxtData_NG import PxtData_NG
-from NonGridModules.FPLeastSquare_NG import FPLeastSquare_NG
-from NonGridModules.FPENet_NG import FPENet_NG
-from NonGridModules.Loss import Loss
+data_ = np.loadtxt('./stock/data_x.dat')
 
-from GridModules.GaussianSmooth import GaussianSmooth
+FTSE = data_[:, :100]
+print(FTSE.shape)
+FTSE_dif = np.sum((FTSE[:-1] - FTSE[1:])**2, axis=1)
+print(max(FTSE_dif), min(FTSE_dif), np.std(FTSE_dif), np.mean(FTSE_dif))
+FTSE_mean, FTSE_std = np.mean(FTSE_dif), np.std(FTSE_dif)
 
-np.set_printoptions(suppress=True)
+# ##################
+interval = [0]
+for i in range(len(FTSE_dif)):
+    if FTSE_dif[i] > np.mean(FTSE_dif) + 2.5 * np.std(FTSE_dif):
+        # print(i)
+        interval.append(i)
+interval.append(len(FTSE_dif))
+print(FTSE_dif[1800:1805])
+print(interval)
+gap = np.zeros((len(interval)-1))
+for i in range(len(interval)-1):
+    gap[i] = interval[i+1]-interval[i]
+print(np.sum(gap > 30))
+print(gap)
+# ##################
 
-name = 'Noisy'
-x_min = -0.015
-x_max = 0.015
-x_points = 100
-# x_points = config.X_POINTS
-# print(x_gap)
-t_gap = 0.001
+FTSE_fragment = [[0, 41], [42, 85], [94, 141], [142, 188], [189, 231], [232, 273], [286, 328], [329, 372],
+                 [389, 438], [439, 488], [497, 532], [533, 572], [573, 616], [617, 639], [691, 730],
+                 [731, 770], [771, 800], [801, 840], [841, 884], [908, 969], [990, 1023], [1042, 1073],
+                 [1074, 1107], [1108, 1141], [1142, 1182], [1184, 1220], [1221, 1259], [1264, 1324],
+                 [1402, 1441], [1442, 1481], [1482, 1523], [1524, 1563], [1564, 1600], [1601, 1640],
+                 [1641, 1680], [1681, 1720], [1721, 1753], [1770, 1803], [1804, 1840], [1845, 1885],
+                 [1886, 1925], [1926, 1965], [1966, 2005], [2006, 2045], [2046, 2083], [2137, 2177],
+                 [2178, 2213], [2214, 2247], [2248, 2286], [2313, 2369]]
 
-learning_rate_gh = 1e-5
-gh_epoch = 1000
-gh_patience = 20
-batch_size = 32
-recur_win_gh = 9
+FTSE_fragment = [[0, 30], [30, 60], [94, 124], [124, 154], [154, 184], [189, 219], [219, 249], [286, 316], [316, 346],
+                   [389, 419], [419, 449], [449, 479], [497, 527], [533, 563], [563, 593], [691, 721], [721, 751],
+                   [751, 781], [781, 811], [811, 841], [841, 871], [908, 938], [938, 968], [990, 1020], [1042, 1072],
+                   [1074, 1104], [1108, 1138], [1184, 1214], [1214, 1244], [1264, 1294],
+                   [1402, 1432], [1432, 1462], [1462, 1492], [1492, 1522], [1524, 1554], [1564, 1594], [1594, 1624],
+                   [1624, 1654], [1654, 1684], [1684, 1714], [1714, 1744], [1770, 1800], [1800, 1830], [1845, 1875],
+                   [1875, 1905], [1905, 1935], [1935, 1965], [1965, 1995], [1995, 2025], [2025, 2055], [2137, 2167],
+                   [2167, 2197], [2214, 2244], [2244, 2274], [2313, 2343]]
 
-learning_rate_p = 1e-5
-p_epoch_factor = 5
-recur_win_p = 9
-
-valid_win = 9
-verb = 2
-
-n_iter = 5000
-iter_patience = 20
-test_range = 5
-sf_range = 7
-t_sro = 7
-
-n_sequence = 40
-t_point = 50
-
-
-def test_steps(x, g, h, data):
-    dx = PDM_NG.pde_1d_mat(x, t_sro, sro=1)
-    dxx = PDM_NG.pde_1d_mat(x, t_sro, sro=2)
-    n_sample = data.test_data.shape[0]
-    predict_t_points = data.test_data.shape[1]
-    predict_pxt_euler = np.zeros((n_sample, predict_t_points, x.shape[0]))
-    for sample in range(data.n_sample):
-        p0 = data.train_data[sample, -1, :]
-        relative_t = data.test_t[sample, :, :] - data.train_t[sample, -1, :]
-        k1 = np.matmul(g * p0, dx) + np.matmul(h * p0, dxx)
-        # print(p0.shape, k1.shape, relative_t.shape)
-        k1.reshape(-1, 1)
-        relative_t.reshape(1, -1)
-        # print(p0.shape, k1.shape, relative_t.shape)
-        delta_p = np.multiply(k1, relative_t)
-        # print(delta_p.shape)
-        predict_pxt_euler[sample] = p0 + delta_p
-        # print(p0[:5], delta_p[:5, :5], predict_pxt_euler[sample, :5, :5])
-    return predict_pxt_euler
+for f in range(len(FTSE_fragment)):
+    start, end = FTSE_fragment[f][0], FTSE_fragment[f][1]
+    print(end - start, start, end)
+    fragment = FTSE[start:end]
+    fragment_dif = np.sum((fragment[:-1] - fragment[1:])**2, axis=1)
+    idx = np.arange(start, end-1)
+    print(idx[fragment_dif > FTSE_mean + 2.5 * FTSE_std])
 
 
-def padding_by_axis2_smooth(data, size):
-    data_shape = list(data.shape)
-    data_shape[2] = int(data_shape[2] + 2 * size)
-    data_shape = tuple(data_shape)
-    expand = np.zeros(data_shape)
-    expand[:, :, size: -size] = data
-    expand = signal.savgol_filter(expand, sf_range, 2, axis=2)
-    expand = signal.savgol_filter(expand, sf_range, 2, axis=1)
-    smooth_data = expand[:, :, size: -size]
-    return smooth_data
+
+plt.figure(figsize=[24, 36])
+# plt.text(-0.1, 1.10, 'A', fontsize=20, transform=ax.transAxes, fontweight='bold', va='top')
+plt.plot(range(FTSE_dif.shape[0]), FTSE_dif, 'k-', linewidth=3, label='$L_{gh}$')
+plt.plot(range(FTSE_dif.shape[0]), np.ones(FTSE_dif.shape[0])*np.mean(FTSE_dif), 'r-', linewidth=3, label='mean')
+plt.plot(range(FTSE_dif.shape[0]), np.ones(FTSE_dif.shape[0])*(np.mean(FTSE_dif) + 2.5*np.std(FTSE_dif)), 'r--',
+         linewidth=3, label='mean+2.5std')
+plt.scatter(interval, y=0.035 * np.ones((len(interval))))
+plt.tick_params(direction='in', width=3, length=6)
+# plt.xticks(fontweight='bold')
+# # plt.ylim(-0.1, 0.4)
+plt.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
+# plt.yticks(np.arange(0.005, 0.018, 0.003))
+plt.legend(loc='upper left', bbox_to_anchor=[0.4, 0.92], ncol=1)
+# ax.text(.5, .9, '$\mathbf{g_{error}}$', horizontalalignment='center', transform=ax.transAxes, fontsize=20)
+plt.ylabel('$\mathbf{L_{gh}}$', fontweight='bold')
+plt.xlabel('iter',  fontweight='bold')
+# plt.show()
+
+plt.figure()
+plt.plot(FTSE[1341], 'k-', linewidth=3, label='$1341$')
+plt.plot(FTSE[1342], 'b-', linewidth=3, label='$1342$')
+plt.plot(FTSE[1343], 'r-', linewidth=3, label='$1343$')
+plt.legend()
+plt.show()
+
+print(np.sum((FTSE[1341] - FTSE[1342])**2))
+print(np.sum((FTSE[1342] - FTSE[1343])**2))
+print(FTSE_dif[1340:1343])
 
 
-def main(smooth_gh=0.1, smooth_p=False):
-    run_ = 0
-    while run_ < 100:
-        directory = '/home/liuwei/GitHub/Result/Stock/p{}_win{}{}_{}'.format(gh_patience, recur_win_gh,
-                                                                             recur_win_p, run_)
-        if os.path.exists(directory):
-            run_ += 1
-            pass
-        else:
-            os.makedirs(directory)
-            break
-
-    x = np.linspace(x_min, x_max, num=x_points, endpoint=True)
-
-    data = np.loadtxt('./stock/data_x.dat')
-    data *= 100
-    noisy_pxt = np.zeros((n_sequence, t_point, x_points))
-    for i in range(n_sequence):
-        noisy_pxt[i, :, :] = data[i * t_point: (i+1) * t_point, :100]
-
-    t = np.zeros((n_sequence, t_point, 1))
-    for i in range(t_point):
-        t[:, i, :] = i * t_gap
-
-    print(np.sum(noisy_pxt[-1, -1, :]))
-
-    log = open(directory + '/train.log', 'w')
-    log.write('learning rate gh: {} \n'.format(learning_rate_gh))
-    log.write('learning rate p: {} \n'.format(learning_rate_p))
-    log.write('t_sro: {} \n'.format(t_sro))
-    log.write('p_epoch_factor {}, sf_range: {} \n'.format(p_epoch_factor, sf_range))
-    smooth_pxt = padding_by_axis2_smooth(noisy_pxt, 5)      # test information leakage
-    log.write('Difference of pxt before and after smooth: {} ratio {}\n'.
-              format(np.sum((smooth_pxt - noisy_pxt)**2)**0.5,
-                     np.sum((smooth_pxt - noisy_pxt)**2)**0.5/np.sum(noisy_pxt**2)**0.5))
-    log.close()
-
-    if smooth_p:
-        update_pxt = np.copy(smooth_pxt)
-    else:
-        update_pxt = np.copy(noisy_pxt)
-
-    noisy_data = PxtData_NG(t=t, x=x, data=noisy_pxt)
-    smooth_data = PxtData_NG(t=t, x=x, data=smooth_pxt)
-    update_data = PxtData_NG(t=t, x=x, data=update_pxt)
-    update_data_valid = PxtData_NG(t=t, x=x, data=update_pxt)
-
-    # end 2 end
-    noisy_data.sample_train_split_e2e(test_range=test_range)
-    smooth_data.sample_train_split_e2e(test_range=test_range)
-    update_data.sample_train_split_e2e(test_range=test_range)
-    update_data_valid.sample_train_split_e2e(test_range=test_range)
-
-    print(noisy_data.train_data.shape, noisy_data.test_data.shape)
-    # sys.exit()
-
-    smooth_data.train_data = padding_by_axis2_smooth(noisy_data.train_data, 5)
-    dif = noisy_data.train_data[:, -1, :] - noisy_data.train_data[:, -2, :]
-    sum_ = 0
-    for pos in range(test_range):
-        # print('{} \t'.format(np.sum((noisy_data.train_data[:, -1, :] - noisy_data.test_data[:, pos, :]) ** 2) /
-        #                      np.sum(noisy_data.test_data[:, pos, :]) ** 2))
-        # pred = (pos + 1) * dif + noisy_data.train_data[:, -1, :]
-        # print('{} \t'.format(np.sum((pred - noisy_data.test_data[:, pos, :]) ** 2) /
-        #                      np.sum(noisy_data.test_data[:, pos, :]) ** 2))
-        # print(np.sum(pred))
-
-        print('{} \t'.format(np.sum((noisy_data.train_data[:, -1, :] - noisy_data.test_data[:, pos, :]) ** 2)))
-        # sum_ += np.sum((noisy_data.train_data[:, -1, :] - noisy_data.test_data[:, pos, :]) ** 2)
-        pred = (pos + 1) * dif + noisy_data.train_data[:, -1, :]
-        print('{} \t'.format(np.sum((pred - noisy_data.test_data[:, pos, :]) ** 2)))
-        sum_ += np.sum((pred - noisy_data.test_data[:, pos, :]) ** 2)
-    # log.write('\n')
-    # log.close()
-    print(sum_)
-    # if iter_p_ > iter_patience:
-    #     break
-
-
-if __name__ == '__main__':
-    main(smooth_gh=0.1, smooth_p=True)

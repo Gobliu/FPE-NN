@@ -26,26 +26,27 @@ x_points = 100
 t_gap = 0.001
 
 learning_rate_gh = 1e-6
-gh_epoch = 1000
+gh_epoch = 10000
 gh_patience = 20
 batch_size = 32
-recur_win_gh = 9
+recur_win_gh = 3
 
-learning_rate_p = 1e-6
+learning_rate_p = 1e-3
 p_epoch_factor = 5
-recur_win_p = 9
+recur_win_p = 3
 
-valid_win = 9
+# valid_win = 9
 verb = 2
 
 n_iter = 5000
 iter_patience = 20
 test_range = 5
-sf_range = 7
+sf_range = 5        # 7
 t_sro = 7
 
 n_sequence = 40
 t_point = 50
+cw = 0
 
 
 def test_one_euler(x, g, h, data):
@@ -97,8 +98,8 @@ def padding_by_axis2_smooth(data, size):
 def main(stock, smooth_gh=0.1, smooth_p=False):
     run_ = 0
     while run_ < 100:
-        directory = '/home/liuwei/GitHub/Result/Stock/p{}_win{}{}_{}'.format(gh_patience, recur_win_gh,
-                                                                             recur_win_p, run_)
+        directory = '/home/liuwei/GitHub/Result/Stock/{}_p{}_win{}{}_{}_cw{}'.format(stock, gh_patience, recur_win_gh,
+                                                                                     recur_win_p, run_, cw)
         if os.path.exists(directory):
             run_ += 1
             pass
@@ -109,15 +110,17 @@ def main(stock, smooth_gh=0.1, smooth_p=False):
     x = np.linspace(x_min, x_max, num=x_points, endpoint=True)
 
     data = np.loadtxt('./stock/data_x.dat')
-    data *= 100
+    # data *= 100
     noisy_pxt = np.zeros((n_sequence, t_point, x_points))
+
+    start_ = 35
     for i in range(n_sequence):
         if stock == 'FTSE':
-            noisy_pxt[i, :, :] = data[i * t_point: (i+1) * t_point, :100]
+            noisy_pxt[i, :, :] = data[start_ + i * t_point: start_ + (i+1) * t_point, :100]
         elif stock == 'DOW':
-            noisy_pxt[i, :, :] = data[i * t_point: (i + 1) * t_point, :100]
+            noisy_pxt[i, :, :] = data[start_ + i * t_point: start_ + (i + 1) * t_point, 100:200]
         elif stock == 'Nikki':
-            noisy_pxt[i, :, :] = data[i * t_point: (i + 1) * t_point, :100]
+            noisy_pxt[i, :, :] = data[start_ + i * t_point: start_ + (i + 1) * t_point, 200:]
         else:
             sys.exit('Stock name is wrong.')
     t = np.zeros((n_sequence, t_point, 1))
@@ -129,11 +132,11 @@ def main(stock, smooth_gh=0.1, smooth_p=False):
     log = open(directory + '/train.log', 'w')
     log.write('learning rate gh: {} \n'.format(learning_rate_gh))
     log.write('learning rate p: {} \n'.format(learning_rate_p))
-    log.write('t_sro: {} \n'.format(t_sro))
+    log.write('t_sro: {}, start_: {} \n'.format(t_sro, start_))
     log.write('p_epoch_factor {}, sf_range: {} \n'.format(p_epoch_factor, sf_range))
     smooth_pxt = copy.copy(noisy_pxt)
     smooth_pxt[:, :, :-test_range] = padding_by_axis2_smooth(smooth_pxt[:, :, :-test_range], 5)
-    log.write('Difference of pxt before and after smooth: {} ratio {}\n'.
+    log.write('Difference of pxt after smooth: {} ratio {}\n'.
               format(np.sum((smooth_pxt - noisy_pxt)**2)**0.5,
                      np.sum((smooth_pxt - noisy_pxt)**2)**0.5/np.sum(noisy_pxt**2)**0.5))
     log.close()
@@ -142,17 +145,17 @@ def main(stock, smooth_gh=0.1, smooth_p=False):
         update_pxt = np.copy(smooth_pxt)
     else:
         update_pxt = np.copy(noisy_pxt)
+    # update_pxt = np.copy(noisy_pxt)
 
     noisy_data = PxtData_NG(t=t, x=x, data=noisy_pxt)
     smooth_data = PxtData_NG(t=t, x=x, data=smooth_pxt)
     update_data = PxtData_NG(t=t, x=x, data=update_pxt)
-    update_data_valid = PxtData_NG(t=t, x=x, data=update_pxt)
+    # update_data_valid = PxtData_NG(t=t, x=x, data=update_pxt)
 
     # end 2 end
     noisy_data.sample_train_split_e2e(test_range=test_range)
     smooth_data.sample_train_split_e2e(test_range=test_range)
     update_data.sample_train_split_e2e(test_range=test_range)
-    update_data_valid.sample_train_split_e2e(test_range=test_range)
 
     lsq = FPLeastSquare_NG(x_coord=x, t_sro=t_sro)
 
@@ -162,11 +165,12 @@ def main(stock, smooth_gh=0.1, smooth_p=False):
         lsq_g, lsq_h, dt_, _ = lsq.lsq_wo_t(pxt=noisy_data.train_data, t=noisy_data.train_t)
 
     gg_v, hh_v = lsq_g, lsq_h
-
+    # print(gg_v.shape)
     gg_v = np.expand_dims(gg_v, axis=-1)
     gg_v = np.expand_dims(gg_v, axis=-1)
     hh_v = np.expand_dims(hh_v, axis=-1)
     hh_v = np.expand_dims(hh_v, axis=-1)
+    # print(gg_v.shape)
     gg_v_ng = np.copy(gg_v)
     hh_v_ng = np.copy(hh_v)
 
@@ -178,25 +182,28 @@ def main(stock, smooth_gh=0.1, smooth_p=False):
     train_p_x = np.ones((1, x_points, 1))
 
     # train gh not end2end, train p end2end
-    win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(smooth_data.train_data, smooth_data.train_t, recur_win_gh)
+    win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(update_data.train_data, update_data.train_t, recur_win_gh)
     train_gh_x_ng = np.copy(win_x)
     train_gh_y_ng = np.copy(win_y)
     train_gh_t_ng = np.copy(win_t)
 
-    win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(smooth_data.train_data, smooth_data.train_t, valid_win)
-    valid_gh_x = np.copy(win_x)
-    valid_gh_y = np.copy(win_y)
-    valid_gh_t = np.copy(win_t)
+    # win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(smooth_data.train_data, smooth_data.train_t, valid_win)
+    # valid_gh_x = np.copy(win_x)
+    # valid_gh_y = np.copy(win_y)
+    # valid_gh_t = np.copy(win_t)
 
-    win_x, win_t, win_y, win_id = PxtData_NG.get_recur_win_e2e(smooth_data.train_data, smooth_data.train_t, recur_win_p)
+    # win_x, win_t, win_y, win_id = PxtData_NG.get_recur_win_e2e(update_data.train_data, update_data.train_t, recur_win_p)
+    win_x, win_t, win_y, win_id = PxtData_NG.get_recur_win_e2e(noisy_data.train_data, noisy_data.train_t, recur_win_p)
+    # win_x, win_t, win_y, win_id = PxtData_NG.get_recur_win_e2e_cw(noisy_data.train_data, noisy_data.train_t,
+    #                                                               recur_win_p, cw)
     train_p_p_ng = np.copy(win_x)
     train_p_y_ng = np.copy(win_y)
     train_p_t_ng = np.copy(win_t)
 
-    win_x, win_t, win_y, win_id = PxtData_NG.get_recur_win_e2e(smooth_data.train_data, smooth_data.train_t, valid_win)
-    # valid_p_p = np.copy(win_x)
-    valid_p_y = np.copy(win_y)
-    valid_p_t = np.copy(win_t)
+    # win_x, win_t, win_y, win_id = PxtData_NG.get_recur_win_e2e(update_data.train_data, update_data.train_t, valid_win)
+    # # valid_p_p = np.copy(win_x)
+    # valid_p_y = np.copy(win_y)
+    # valid_p_t = np.copy(win_t)
 
     n_sample = train_p_p_ng.shape[0]
     iter_p_ = 0
@@ -220,11 +227,13 @@ def main(stock, smooth_gh=0.1, smooth_p=False):
         gg_v_ng = gh_nn_ng.get_layer(name=name + 'g').get_weights()[0]
         hh_v_ng = gh_nn_ng.get_layer(name=name + 'h').get_weights()[0]
 
-        y_model = gh_nn_ng.predict([valid_gh_x, valid_gh_t])
-        L_gh = np.sum((valid_gh_y - y_model)**2)
+        y_model = gh_nn_ng.predict([train_gh_x_ng, train_gh_t_ng])
+        L_gh = np.sum((train_gh_y_ng - y_model)**2)
+        # print(valid_gh_y[0, :, 0], y_model[0, :, 0])
+        L_gh_test = gh_nn_ng.evaluate([train_gh_x_ng, train_gh_t_ng], train_gh_y_ng)
         print('Shape of y_model:', y_model.shape, train_p_y_ng.shape)
 
-        log.write('L_gh: {}\n'.format(L_gh))
+        log.write('L_gh: {} {} {}\n'.format(L_gh, L_gh_test, L_gh/L_gh_test))
 
         # train p
         p_nn_ng.get_layer(name=name + 'g').set_weights([gg_v_ng])
@@ -240,22 +249,24 @@ def main(stock, smooth_gh=0.1, smooth_p=False):
             p_nn_ng.get_layer(name=name + 'p').set_weights([train_p_p_ng[sample].reshape(-1, 1, 1)])
             es = callbacks.EarlyStopping(verbose=verb, patience=gh_patience)
             # May 10 change iter_//5
-            p_loss = p_nn_ng.evaluate([train_p_x, valid_p_t[sample:sample + 1, ...]],
-                                      valid_p_y[sample:sample + 1, ...])
+            p_loss = p_nn_ng.evaluate([train_p_x, train_p_t_ng[sample:sample + 1, ...]],
+                                      train_p_y_ng[sample:sample + 1, ...])
             total_train_p_loss_before += p_loss
             p_nn_ng.fit([train_p_x, train_p_t_ng[sample:sample + 1, ...]], train_p_y_ng[sample:sample + 1, ...],
                         epochs=iter_ // p_epoch_factor + 1, verbose=verb, callbacks=[es],
                         validation_data=[[train_p_x, train_p_t_ng[sample:sample + 1, ...]],
                                          train_p_y_ng[sample:sample + 1, ...]])
 
-            update_data.train_data[sample_id, t_id] = p_nn_ng.get_layer(name=name + 'p').get_weights()[0][:, 0, 0]
-            p_loss = p_nn_ng.evaluate([train_p_x, valid_p_t[sample:sample + 1, ...]],
-                                      valid_p_y[sample:sample + 1, ...])
+            temp = p_nn_ng.get_layer(name=name + 'p').get_weights()[0][:, 0, 0]
+            temp[temp < 0] = 0
+            update_data.train_data[sample_id, t_id] = temp / np.sum(temp)
+            p_loss = p_nn_ng.evaluate([train_p_x, train_p_t_ng[sample:sample + 1, ...]],
+                                      train_p_y_ng[sample:sample + 1, ...])
             total_train_p_loss_after += p_loss
 
         L_P = total_train_p_loss_after
 
-        # update_data_ng.train_data = padding_by_axis2_smooth(update_data_ng.train_data, 5)
+        # update_data.train_data = padding_by_axis2_smooth(update_data.train_data, 5)
 
         win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(update_data.train_data, update_data.train_t,
                                                               recur_win_gh)
@@ -265,27 +276,22 @@ def main(stock, smooth_gh=0.1, smooth_p=False):
 
         win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(update_data.train_data, update_data.train_t,
                                                               recur_win_p)
+        # win_x, win_t, win_y, win_id = PxtData_NG.get_recur_win_e2e_cw(noisy_data.train_data, noisy_data.train_t,
+        #                                                               recur_win_p, cw)
         train_p_p_ng = np.copy(win_x)
 
-        win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(update_data.train_data, update_data.train_t,
-                                                              valid_win)
-        valid_gh_x = np.copy(win_x)
-        valid_gh_y = np.copy(win_y)
-        valid_gh_t = np.copy(win_t)  # key??
+        # win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(update_data.train_data, update_data.train_t,
+        #                                                       valid_win)
+        # valid_gh_x = np.copy(win_x)
+        # valid_gh_y = np.copy(win_y)
+        # valid_gh_t = np.copy(win_t)  # key??
 
         log = open(directory + '/train.log', 'a')
-        log.write('Total error of p training before: {}, after: {}, Total loss: {}\n'.format(total_train_p_loss_before,
-                                                                                           total_train_p_loss_after,
-                                                                                           L_gh + L_P))
-
-        if L_gh + L_P < total_loss:
-            # save
-            np.savez_compressed(directory + '/iter{}'.format(iter_),
-                                g=gg_v_ng[:, 0, 0], h=hh_v_ng[:, 0, 0], P=update_data.train_data)
-            iter_p_ = 0
-            total_loss = L_gh + L_P
-        else:
-            iter_p_ += 1
+        log.write('Total error of p training before: {}, after: {}, Dif P {} {}, Total loss: {}\n'
+                  .format(total_train_p_loss_before, total_train_p_loss_after,
+                          np.sum((update_data.train_data - noisy_data.train_data)**2),
+                          np.sum((update_data.train_data[:, -1, :] - noisy_data.train_data[:, -1, :]) ** 2),
+                          L_gh + L_P))
 
         predict_one_euler = test_one_euler(x, gg_v_ng[:, 0, 0], hh_v_ng[:, 0, 0], update_data)
         log.write('To Noisy data, one euler: \t')
@@ -294,10 +300,20 @@ def main(stock, smooth_gh=0.1, smooth_p=False):
         log.write('\n')
         log.close()
 
+        if L_gh + L_P < total_loss:
+            # save
+            np.savez_compressed(directory + '/iter{}'.format(iter_),
+                                g=gg_v_ng[:, 0, 0], h=hh_v_ng[:, 0, 0], P=update_data.train_data,
+                                predict=predict_one_euler, test=noisy_data.test_data)
+            iter_p_ = 0
+            total_loss = L_gh + L_P
+        else:
+            iter_p_ += 1
+
         if iter_p_ > iter_patience:
             break
 
 
 if __name__ == '__main__':
-    main(stock='Nikki', smooth_gh=0.1, smooth_p=True,)
+    main(stock='FTSE', smooth_gh=0.1, smooth_p=True)
     # stock could choose 'FTSE', 'DOW', 'Nikki'
