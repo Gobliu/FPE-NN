@@ -25,13 +25,13 @@ x_points = 100
 # print(x_gap)
 t_gap = 1
 
-learning_rate_gh = 1e-9
+learning_rate_gh = 1e-8
 gh_epoch = 10000
 gh_patience = 20
 batch_size = 32
 recur_win_gh = 5
 
-learning_rate_p = 1e-3
+learning_rate_p = 1e-2
 p_epoch_factor = 5
 recur_win_p = 5
 
@@ -313,5 +313,5 @@ def main(stock, smooth_gh=0.1, smooth_p=False):
 
 
 if __name__ == '__main__':
-    main(stock='Nikki', smooth_gh=0.1, smooth_p=True)
+    main(stock='DOW', smooth_gh=0.1, smooth_p=True)
     # stock could choose 'FTSE', 'DOW', 'Nikki'
