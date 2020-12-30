@@ -44,6 +44,20 @@ class PxtData_NG:
         print('Totally {} time points in train, {} time points in test.'.format(self.train_data.shape[1],
                                                                                 self.test_data.shape[1]))
 
+    def sample_train_split_seq(self, test_ratio=0.2, shuffle=None):
+        seq_idx = np.arange(self.n_sample)
+        if shuffle:
+            np.random.shuffle(seq_idx)
+        train_idx = seq_idx[: - int(self.n_sample * test_ratio)]
+        test_idx = seq_idx[-int(self.n_sample * test_ratio):]
+        print(train_idx, test_idx)
+        self.train_data = np.copy(self.pxt[train_idx])
+        self.train_t = np.copy(self.t[train_idx])
+        self.test_data = np.copy(self.pxt[test_idx])
+        self.test_t = np.copy(self.t[test_idx])
+        print('Totally {} time points in train, {} time points in test.'.format(self.train_data.shape[1],
+                                                                                self.test_data.shape[1]))
+
     def process_for_lsq_wo_t(self, t_sro):
         print('t_points: {}'.format(self.train_data.shape[1]))
         dt = PDM_NG.pde_1d_mat(7, 1, self.train_data.shape[1]) / self.t_gap
@@ -183,3 +197,56 @@ class PxtData_NG:
                                                                                           self.test_t,
                                                                                           recur_win=recur_win)
             print('Shape of test_x: {}, test_y: {}'.format(self.test_x.shape, self.test_y.shape))
+
+    @staticmethod
+    def get_recur_win_center(data, t_mat, recur_win):
+        assert data.ndim == 3, 'Input data should be a 3D matrix.'
+        assert t_mat.ndim == 3, 'Input t should be a 3D matrix.'
+        d1, d2, d3 = data.shape                 # n_sample, t_points, x_points
+        print('d1 {}, d2 {}, d3 {}'.format(d1, d2, d3))
+        new_d2 = d2 - 2*(recur_win // 2)
+        win_x = np.zeros((d1, new_d2, d3, 1))
+        win_y = np.zeros((d1, new_d2, d3, recur_win))
+        win_id = np.zeros((d1, new_d2, 2), dtype=int)
+        win_t = np.zeros((d1, new_d2, recur_win))
+        for sample in range(d1):
+            for t_idx in range(new_d2):
+                # print(t_idx, t_idx + recur_win//2, d2-recur_win//2, new_d2)
+                win_x[sample, t_idx, :, 0] = np.copy(data[sample, t_idx + recur_win//2, :])
+                start = t_idx
+                for i_ in range(recur_win):
+                    assert 0 <= start+i_ < d2, 'Warning: index out of range: {}'.format(start+i_)
+                    win_y[sample, t_idx, :, i_] = np.copy(data[sample, start + i_, :])
+                    win_t[sample, t_idx, i_] = t_mat[sample, start + i_, 0] - t_mat[sample, t_idx, 0]
+                win_id[sample, t_idx, :] = [sample, t_idx + recur_win//2]
+        win_x = win_x.reshape((-1, d3, 1))
+        win_y = win_y.reshape((-1, d3, recur_win))
+        win_id = win_id.reshape((-1, 2))
+        win_t = win_t.reshape((-1, 1, recur_win))
+        return win_x, win_t, win_y, win_id
+
+    @staticmethod
+    def get_recur_win_back(data, t_mat, recur_win):
+        assert data.ndim == 3, 'Input data should be a 3D matrix.'
+        assert t_mat.ndim == 3, 'Input t should be a 3D matrix.'
+        d1, d2, d3 = data.shape                 # n_sample, t_points, x_points
+        print('d1 {}, d2 {}, d3 {}'.format(d1, d2, d3))
+        new_d2 = d2 - recur_win + 1
+        win_x = np.zeros((d1, new_d2, d3, 1))
+        win_y = np.zeros((d1, new_d2, d3, recur_win))
+        win_id = np.zeros((d1, new_d2, 2), dtype=int)
+        win_t = np.zeros((d1, new_d2, recur_win))
+        for sample in range(d1):
+            for t_idx in range(recur_win-1, d2):
+                win_x[sample, t_idx, :, 0] = np.copy(data[sample, t_idx, :])
+                start = t_idx - recur_win + 1
+                for i_ in range(recur_win):
+                    assert 0 <= start+i_ < d2, 'Warning: index out of range: {}'.format(start+i_)
+                    win_y[sample, t_idx, :, i_] = np.copy(data[sample, start + i_, :])
+                    win_t[sample, t_idx, i_] = t_mat[sample, start + i_, 0] - t_mat[sample, t_idx, 0]
+                win_id[sample, t_idx, :] = [sample, t_idx]
+        win_x = win_x.reshape((-1, d3, 1))
+        win_y = win_y.reshape((-1, d3, recur_win))
+        win_id = win_id.reshape((-1, 2))
+        win_t = win_t.reshape((-1, 1, recur_win))
+        return win_x, win_t, win_y, win_id
