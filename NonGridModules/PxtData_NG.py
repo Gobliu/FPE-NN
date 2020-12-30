@@ -217,7 +217,7 @@ class PxtData_NG:
                 for i_ in range(recur_win):
                     assert 0 <= start+i_ < d2, 'Warning: index out of range: {}'.format(start+i_)
                     win_y[sample, t_idx, :, i_] = np.copy(data[sample, start + i_, :])
-                    win_t[sample, t_idx, i_] = t_mat[sample, start + i_, 0] - t_mat[sample, t_idx, 0]
+                    win_t[sample, t_idx, i_] = t_mat[sample, start + i_, 0] - t_mat[sample, t_idx + recur_win//2, 0]
                 win_id[sample, t_idx, :] = [sample, t_idx + recur_win//2]
         win_x = win_x.reshape((-1, d3, 1))
         win_y = win_y.reshape((-1, d3, recur_win))
@@ -237,14 +237,14 @@ class PxtData_NG:
         win_id = np.zeros((d1, new_d2, 2), dtype=int)
         win_t = np.zeros((d1, new_d2, recur_win))
         for sample in range(d1):
-            for t_idx in range(recur_win-1, d2):
-                win_x[sample, t_idx, :, 0] = np.copy(data[sample, t_idx, :])
-                start = t_idx - recur_win + 1
+            for t_idx in range(0, new_d2):
+                win_x[sample, t_idx, :, 0] = np.copy(data[sample, t_idx+recur_win-1, :])
+                start = t_idx
                 for i_ in range(recur_win):
                     assert 0 <= start+i_ < d2, 'Warning: index out of range: {}'.format(start+i_)
                     win_y[sample, t_idx, :, i_] = np.copy(data[sample, start + i_, :])
-                    win_t[sample, t_idx, i_] = t_mat[sample, start + i_, 0] - t_mat[sample, t_idx, 0]
-                win_id[sample, t_idx, :] = [sample, t_idx]
+                    win_t[sample, t_idx, i_] = t_mat[sample, start + i_, 0] - t_mat[sample, t_idx+recur_win-1, 0]
+                win_id[sample, t_idx, :] = [sample, t_idx+recur_win-1]
         win_x = win_x.reshape((-1, d3, 1))
         win_y = win_y.reshape((-1, d3, recur_win))
         win_id = win_id.reshape((-1, 2))
