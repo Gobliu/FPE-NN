@@ -50,7 +50,7 @@ class PxtData_NG:
             np.random.shuffle(seq_idx)
         train_idx = seq_idx[: - int(self.n_sample * test_ratio)]
         test_idx = seq_idx[-int(self.n_sample * test_ratio):]
-        print(train_idx, test_idx)
+        # print(train_idx, test_idx)
         self.train_data = np.copy(self.pxt[train_idx])
         self.train_t = np.copy(self.t[train_idx])
         self.test_data = np.copy(self.pxt[test_idx])
