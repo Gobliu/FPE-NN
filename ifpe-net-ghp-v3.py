@@ -34,8 +34,8 @@ gh_epoch = config.EPOCH
 p_epoch = 1
 patience = config.PATIENCE
 batch_size = config.BATCH_SIZE
-recur_win_gh = 13
-recur_win_p = 13
+recur_win_gh = 7
+recur_win_p = 7
 verb = 2
 p_epoch_factor = 5
 gh = 'lsq'         # check
@@ -202,7 +202,7 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     np.save(directory + '/p_weight.npy', p_weight)
 
     # train gh not end2end, train p end2end
-    win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_center(smooth_data.train_data, smooth_data.train_t, recur_win_gh)
+    win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_back(smooth_data.train_data, smooth_data.train_t, recur_win_gh)
     train_gh_x_ng = np.copy(win_x)
     train_gh_y_ng = np.copy(win_y)
     train_gh_t_ng = np.copy(win_t)
@@ -214,13 +214,13 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     # # print(win_t[45])
     # # print(win_t[46])
     # sys.exit()
-    win_x, win_t, win_y, win_id = PxtData_NG.get_recur_win_center(smooth_data.train_data, smooth_data.train_t, recur_win_p)
+    win_x, win_t, win_y, win_id = PxtData_NG.get_recur_win_back(smooth_data.train_data, smooth_data.train_t, recur_win_p)
     train_p_p_ng = np.copy(win_x)
     train_p_y_ng = np.copy(win_y)
     train_p_t_ng = np.copy(win_t)
 
     log = open(directory + '/train.log', 'a')
-    true_train_x, _, _, _ = PxtData_NG.get_recur_win_center(true_data.train_data, true_data.train_t, recur_win_p)
+    true_train_x, _, _, _ = PxtData_NG.get_recur_win_back(true_data.train_data, true_data.train_t, recur_win_p)
     log.write('Initial error of p: {} \n'.format(np.sum((train_p_p_ng - true_train_x)**2)**0.5))
     log.close()
 
@@ -300,13 +300,13 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
 
         # update_data_ng.train_data = padding_by_axis2_smooth(update_data_ng.train_data, 5)
 
-        win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_center(update_data_ng.train_data, update_data_ng.train_t,
+        win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_back(update_data_ng.train_data, update_data_ng.train_t,
                                                               recur_win_gh)
         train_gh_x_ng = np.copy(win_x)
         train_gh_y_ng = np.copy(win_y)
         train_gh_t_ng = np.copy(win_t)  # key??
 
-        win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_center(update_data_ng.train_data, update_data_ng.train_t,
+        win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_back(update_data_ng.train_data, update_data_ng.train_t,
                                                               recur_win_p)
         train_p_p_ng = np.copy(win_x)
 
