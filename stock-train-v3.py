@@ -181,6 +181,8 @@ def main(stock, smooth_gh=0.1, smooth_p=False):
     else:
         lsq_g, lsq_h, dt_, _ = lsq.lsq_wo_t(pxt=noisy_data.train_data, t=noisy_data.train_t)
 
+    # print(noisy_data.train_data.shape, noisy_data.train_t.shape)
+    # sys.exit()
     gg_v, hh_v = lsq_g, lsq_h
     # print(gg_v.shape)
     gg_v = np.expand_dims(gg_v, axis=-1)
