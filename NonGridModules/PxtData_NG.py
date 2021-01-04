@@ -37,10 +37,11 @@ class PxtData_NG:
     def sample_train_split_e2e(self, test_range):
         pxt_copy = np.copy(self.pxt)
         t_copy = np.copy(self.t)
-        self.train_data = pxt_copy[:, :-test_range, :]
-        self.train_t = t_copy[:, :-test_range, :]
-        self.test_data = pxt_copy[:, -test_range:, :]
-        self.test_t = t_copy[:, -test_range:, :]
+        d2 = pxt_copy.shape[1]
+        self.train_data = pxt_copy[:, :d2-test_range, :]
+        self.train_t = t_copy[:, :d2-test_range, :]
+        self.test_data = pxt_copy[:, d2-test_range:, :]
+        self.test_t = t_copy[:, d2-test_range:, :]
         print('Totally {} time points in train, {} time points in test.'.format(self.train_data.shape[1],
                                                                                 self.test_data.shape[1]))
 

@@ -124,11 +124,11 @@ win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(noisy_data.train_data, noi
 print(win_y.shape, np.sum(win_y**2))
 # denom = np.sum(win_y**2)
 
-# directory = '/home/liuwei/GitHub/Result/Stock/{}_p{}_win{}{}_{}'.format('FTSE', 20, 5, 5, 16)
-directory = '/home/liuwei/GitHub/Result/Stock/{}_p{}_win{}{}_{}_v3'.format('DOW', 20, 5, 5, 0)
+directory = '/home/liuwei/GitHub/Result/Stock/{}_p{}_win{}{}_{}_v3'.format('FTSE', 20, 5, 5, 3)
+# directory = '/home/liuwei/GitHub/Result/Stock/{}_p{}_win{}{}_{}_v3'.format('DOW', 20, 5, 5, 0)
 # directory = '/home/liuwei/Cluster/Stock/{}_p{}_win{}{}_{}_v3'.format('Nikki', 20, 5, 5, 0)
-iter_ = 0
-iter_ = 33
+# iter_ = 0
+iter_ = 209
 data_ = np.load(directory + '/iter{}.npz'.format(iter_))
 g = data_['g'] * t_gap
 h = data_['h'] * t_gap
@@ -158,7 +158,20 @@ predict_one_euler = test_one_euler(x, g, h, noisy_data)
 # print('~~~~~~~~~~~~~~~~~~~~')
 predict_step_euler = test_step_euler(x, g, h, noisy_data)
 # print('~~~~~~~~~~~~~~~~~~~~')
-# print(predict_step_euler[0, :, 50:60])
+print(predict_step_euler.shape)
+print(noisy_data.train_data[0, -1, 50:60], noisy_data.test_data[0, 0, 50:60], predict_one_euler[0, 0, 50:60])
+
+# plt.figure()
+# plt.plot(predict_one_euler[10, 0, :], 'k-', label='after train', linewidth=1)
+# plt.plot(noisy_data.train_data[10, -1, :], 'r', label='trained_p', linewidth=1)
+# # plt.plot(one_pred[sample, :, 2], 'r-', label='pred', linewidth=1)
+# plt.plot(noisy_data.test_data[10, 0, :], 'b-', label='input', linewidth=1)
+# # plt.plot(P[2, 44, :], 'r-', label='trained', linewidth=1)
+# # plt.plot(pre_P[1, -1, :], 'b-', label='p_initial', linewidth=1)
+# plt.legend()
+# # plt.title('iter {}'.format(i))
+# plt.show()
+
 # print(noisy_data.train_data[0, -1, 50:60])
 # sys.exit()
 predict_GBM = test_one_euler(x, mu*x, sigma*h**2, noisy_data)

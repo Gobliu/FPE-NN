@@ -102,97 +102,48 @@ def train_process(stock, dif, half_win):
 
 
 def main(stock_type, start, end, smooth_gh=0.1):
-    run_ = 0
-    while run_ < 100:
-        directory = '/home/liuwei/GitHub/Result/Stock/{}_p{}_win{}{}_{}_v4'.format(stock_type, gh_patience,
-                                                                                   recur_win_gh, recur_win_p, run_)
-        if os.path.exists(directory):
-            run_ += 1
-            pass
-        else:
-            os.makedirs(directory)
-            break
+    run_ = 2
+    directory = '/home/liuwei/GitHub/Result/Stock/{}_p{}_win{}{}_{}_v4'.format(stock_type, gh_patience,
+                                                                               recur_win_gh, recur_win_p, run_)
 
     x = np.linspace(x_min, x_max, num=x_points, endpoint=True)
 
     # data = np.loadtxt('./stock/data_x.dat')
     train_stock, train_dif, test_stock, test_dif = data_spit(stock_type, start, end)
-    update_train_stock = np.copy(train_stock)
+    npz = np.load(directory + '/iter{}.npz'.format(291))
+    update_train_stock = npz['P']
+    gg_v = npz['g']
+    hh_v = npz['h']
 
-    # ~~~~~~~~~~~~~ for lsq
-    train_stock_lsq = train_stock.reshape((1, -1, 100))
-    train_t_lsq = np.arange(train_stock.shape[0]).reshape((1, -1, 1))
-    lsq = FPLeastSquare_NG(x_coord=x, t_sro=t_sro)
-    lsq_g, lsq_h, dt_, _ = lsq.lsq_wo_t(pxt=train_stock_lsq, t=train_t_lsq)
-
-    gg_v, hh_v = lsq_g, lsq_h
     gg_v = np.expand_dims(gg_v, axis=-1)
     gg_v = np.expand_dims(gg_v, axis=-1)
     hh_v = np.expand_dims(hh_v, axis=-1)
     hh_v = np.expand_dims(hh_v, axis=-1)
     # ~~~~~~~~~~~~~
 
-    log = open(directory + '/train.log', 'w')
-    log.write('learning rate gh: {} \n'.format(learning_rate_gh))
-    log.write('learning rate p: {} \n'.format(learning_rate_p))
-    log.write('t_sro: {} start: {} end: {}\n'.format(t_sro, start, end))
-    log.write('p_epoch_factor {}, sf_range: {} \n'.format(p_epoch_factor, 'NA'))
-    log.write('Difference of pxt after smooth: {} ratio {}\n'.
-              format('NA', 'NA'))
-    log.close()
-
     fpe_net_ng = FPENet_NG(x_coord=x, name=name, t_sro=t_sro)
-    gh_nn_ng = fpe_net_ng.recur_train_gh(learning_rate=learning_rate_gh, loss=Loss.sum_square)
     p_nn_ng = fpe_net_ng.recur_train_p_direct(learning_rate=learning_rate_p, loss=Loss.sum_square,
                                               fix_g=gg_v, fix_h=hh_v)
 
     train_p_x = np.ones((1, x_points, 1))
 
-    win_x, win_t, win_y, _ = train_process(train_stock, train_dif, recur_win_gh//2)
-    train_gh_x = np.copy(win_x)
-    train_gh_y = np.copy(win_y)
-    train_gh_t = np.copy(win_t)
-
     # train gh not end2end, train p end2end
     win_x, win_t, win_y, win_id = train_process(train_stock, train_dif, recur_win_gh//2)
-    train_p_p = np.copy(win_x)
+    # train_p_p = np.copy(win_x)
     train_p_y = np.copy(win_y)
     train_p_t = np.copy(win_t)
+
+    win_x, win_t, win_y, _ = train_process(update_train_stock, train_dif, recur_win_gh // 2)
+    train_p_p = np.copy(win_x)
 
     # sys.exit()
     n_sample = train_p_p.shape[0]
     iter_p_ = 0
     total_loss = sys.maxsize
-    for iter_ in range(n_iter):
-        log = open(directory + '/train.log', 'a')
-        log.write('Iter: {} \n'.format(iter_))
-
-        # smooth
-        gg_v[:, 0, 0] = GaussianSmooth.gaussian1d(gg_v[:, 0, 0], sigma=1 / (smooth_gh * iter_+1))
-        hh_v[:, 0, 0] = GaussianSmooth.gaussian1d(hh_v[:, 0, 0], sigma=1 / (smooth_gh * iter_+1))
-
-        # train gh
-        gh_nn_ng.get_layer(name=name + 'g').set_weights([gg_v])
-        gh_nn_ng.get_layer(name=name + 'h').set_weights([hh_v])
-
-        es = callbacks.EarlyStopping(verbose=verb, patience=gh_patience)
-        gh_nn_ng.fit([train_gh_x, train_gh_t], train_gh_y, epochs=gh_epoch, batch_size=batch_size,
-                     verbose=verb, callbacks=[es], validation_split=0.2)
-
-        gg_v_ng = gh_nn_ng.get_layer(name=name + 'g').get_weights()[0]
-        hh_v_ng = gh_nn_ng.get_layer(name=name + 'h').get_weights()[0]
-
-        y_model = gh_nn_ng.predict([train_gh_x, train_gh_t])
-        L_gh = np.sum((train_gh_y - y_model)**2)
-        # print(valid_gh_y[0, :, 0], y_model[0, :, 0])
-        L_gh_test = gh_nn_ng.evaluate([train_gh_x, train_gh_t], train_gh_y)
-        print('Shape of y_model:', y_model.shape, train_p_y.shape)
-
-        log.write('L_gh: {} {} {}\n'.format(L_gh, L_gh_test, L_gh/L_gh_test))
-
+    for iter_ in range(1):
         # train p
-        p_nn_ng.get_layer(name=name + 'g').set_weights([gg_v_ng])
-        p_nn_ng.get_layer(name=name + 'h').set_weights([hh_v_ng])
+        p_nn_ng.get_layer(name=name + 'g').set_weights([gg_v])
+        p_nn_ng.get_layer(name=name + 'h').set_weights([hh_v])
         # backend.set_value(p_nn_ng.optimizer.lr, dyn_learning_rate_p)
 
         total_train_p_loss_before = 0
@@ -200,53 +151,37 @@ def main(stock_type, start, end, smooth_gh=0.1):
         predict_loss = 0
         for sample in range(n_sample):
             # sample_id, t_id = win_id[sample]  # no true data, end2end
-            sample_id = win_id[sample, 0]
-            print('Training P, Sample id: {}, time id {}'.format(sample_id, 'NA'))
+            # sample_id = win_id[sample, 0]
+            # print('Training P, Sample id: {}, time id {}'.format(sample_id, 'NA'))
             p_nn_ng.get_layer(name=name + 'p').set_weights([train_p_p[sample].reshape(-1, 1, 1)])
-            es = callbacks.EarlyStopping(verbose=verb, patience=gh_patience)
+            # es = callbacks.EarlyStopping(verbose=verb, patience=gh_patience)
             # May 10 change iter_//5
             p_loss = p_nn_ng.evaluate([train_p_x, train_p_t[sample:sample + 1, ...]],
                                       train_p_y[sample:sample + 1, ...])
             total_train_p_loss_before += p_loss
-            p_nn_ng.fit([train_p_x, train_p_t[sample:sample + 1, ...]], train_p_y[sample:sample + 1, ...],
-                        epochs=iter_ // p_epoch_factor + 1, verbose=verb, callbacks=[es],
-                        validation_data=[[train_p_x, train_p_t[sample:sample + 1, ...]],
-                                         train_p_y[sample:sample + 1, ...]])
+            # p_nn_ng.fit([train_p_x, train_p_t[sample:sample + 1, ...]], train_p_y[sample:sample + 1, ...],
+            #             epochs=iter_ // p_epoch_factor + 1, verbose=verb, callbacks=[es],
+            #             validation_data=[[train_p_x, train_p_t[sample:sample + 1, ...]],
+            #                              train_p_y[sample:sample + 1, ...]])
 
-            temp = p_nn_ng.get_layer(name=name + 'p').get_weights()[0][:, 0, 0]
-            temp[temp < 0] = 0
-            update_train_stock[sample_id] = temp / np.sum(temp)
             p_loss = p_nn_ng.evaluate([train_p_x, train_p_t[sample:sample + 1, ...]],
                                       train_p_y[sample:sample + 1, ...])
             total_train_p_loss_after += p_loss
 
-        L_P = total_train_p_loss_after
+            y_model = p_nn_ng.predict([train_p_x, train_p_t[sample:sample + 1, ...]])
+            plt.figure()
+            plt.plot(y_model[0, :, 0], 'k-', label='after train', linewidth=1)
+            plt.plot(train_p_y[sample, :, 0], 'r', label='trained_p', linewidth=1)
+            # plt.plot(one_pred[sample, :, 2], 'r-', label='pred', linewidth=1)
+            # plt.plot(train_p_p[:, 0, 0], 'b-', label='input', linewidth=1)
+            # plt.plot(P[2, 44, :], 'r-', label='trained', linewidth=1)
+            # plt.plot(pre_P[1, -1, :], 'b-', label='p_initial', linewidth=1)
+            plt.legend()
+            # plt.title('iter {}'.format(i))
+            plt.show()
+            sys.exit()
 
-        win_x, win_t, win_y, _ = train_process(update_train_stock, train_dif, recur_win_gh // 2)
-        train_gh_x = np.copy(win_x)
-        train_gh_y = np.copy(win_y)
-        train_gh_t = np.copy(win_t)
-
-        win_x, win_t, win_y, _ = train_process(update_train_stock, train_dif, recur_win_gh // 2)
-        train_p_p = np.copy(win_x)
-
-        log = open(directory + '/train.log', 'a')
-        log.write('Total error of p training before: {}, after: {}, Dif P {}, Total loss: {}\n'
-                  .format(total_train_p_loss_before, total_train_p_loss_after,
-                          np.sum((train_stock - update_train_stock)**2),
-                          L_gh + L_P))
-
-        if L_gh + L_P < total_loss:
-            # save
-            np.savez_compressed(directory + '/iter{}'.format(iter_),
-                                g=gg_v_ng[:, 0, 0], h=hh_v_ng[:, 0, 0], P=update_train_stock)
-            iter_p_ = 0
-            total_loss = L_gh + L_P
-        else:
-            iter_p_ += 1
-
-        if iter_p_ > iter_patience:
-            break
+        print(total_train_p_loss_before, total_train_p_loss_after)
 
 
 if __name__ == '__main__':

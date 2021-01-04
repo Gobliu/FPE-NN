@@ -49,14 +49,14 @@ def test_one_step(x, g, h, p, t):
     # predict_pxt_euler = np.zeros((test_range, x.shape[0]))
     # print('0', p.shape, g.shape, h.shape, t.shape)
     k1 = np.matmul(g * p, dx) + np.matmul(h * p, dxx)
-    # print('1', p.shape, k1.shape, t.shape)
-    k1.reshape(-1, 1)
-    t.reshape(1, -1)
-    # print('2', p.shape, k1.shape, t.shape)
+    print('1', p.shape, k1.shape, t.shape)
+    # k1.reshape(-1, 1)
+    # t.reshape(1, -1)
     delta_p = np.multiply(k1, t)
     # print(delta_p.shape, t)
     # print(k1[50:60], delta_p[:, 50:60])
     predict_pxt_euler = p + delta_p
+    print('2', p.shape, k1.shape, t.shape, predict_pxt_euler.shape)
     # print(p0[:5], delta_p[:5, :5], predict_pxt_euler[sample, :5, :5])
     return predict_pxt_euler
 
@@ -146,7 +146,7 @@ def main():
             p_nn_ng.get_layer(name=name + 'p').set_weights([train_p_p])
             es = callbacks.EarlyStopping(verbose=verb, patience=patience)
             print('3', train_p_x.shape, train_p_t.shape, train_p_y.shape)
-            sys.exit()
+            # sys.exit()
             p_loss = p_nn_ng.evaluate([train_p_x, train_p_t], train_p_y)
             pre_loss.append(p_loss)
             p_nn_ng.fit([train_p_x, train_p_t], train_p_y,
@@ -162,9 +162,22 @@ def main():
             fix_err = np.sum((train_p_p[:, 0, 0] - test_p_y) ** 2)
             print(np.sum(err_bt[count]), np.sum(err_at[count]), fix_err)
             count += 1
+
+            # print(pred_p_after_train.shape)
+            plt.figure()
+            plt.plot(pred_p_after_train[-1], 'k-', label='after train', linewidth=1)
+            plt.plot(test_p_y[-1], 'r', label='trained_p', linewidth=1)
+            # plt.plot(one_pred[sample, :, 2], 'r-', label='pred', linewidth=1)
+            plt.plot(pred_p_before_train[-1], 'b-', label='input', linewidth=1)
+            # plt.plot(P[2, 44, :], 'r-', label='trained', linewidth=1)
+            # plt.plot(pre_P[1, -1, :], 'b-', label='p_initial', linewidth=1)
+            plt.legend()
+            # plt.title('iter {}'.format(i))
+            plt.show()
+
             # print(np.sum((pred_p_before_train - test_p_y)**2, axis=1))
             # print(np.sum((pred_p_after_train - test_p_y) ** 2, axis=1))
-            # sys.exit()
+            sys.exit()
     log = open(op_dir + '/train.log', 'a')
     log.write('{} iter {} \n'.format(op_dir, iter_))
     log.write('lr {} \t epoch {} \t patient {} \t train range {} \t test range {} \n'
