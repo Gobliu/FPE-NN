@@ -31,7 +31,7 @@ gh_patience = 20
 batch_size = 32
 recur_win_gh = 5
 
-learning_rate_p = 1e-3
+learning_rate_p = 1e-4
 p_epoch_factor = 5
 recur_win_p = 5
 

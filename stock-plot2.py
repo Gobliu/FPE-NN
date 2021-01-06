@@ -102,10 +102,10 @@ print(win_y.shape, np.sum(win_y**2))
 # denom = np.sum(win_y**2)
 
 # directory = '/home/liuwei/GitHub/Result/Stock/{}_p{}_win{}{}_{}'.format('FTSE', 20, 5, 5, 16)
-directory = '/home/liuwei/GitHub/Result/Stock/{}_p{}_win{}{}_{}_v4'.format('FTSE', 20, 5, 5, 2)
+directory = '/home/liuwei/GitHub/Result/Stock/{}_p{}_win{}{}_{}_v5'.format('FTSE', 20, 3, 3, 1)
 # directory = '/home/liuwei/Cluster/Stock/{}_p{}_win{}{}_{}'.format('Nikki', 20, 9, 9, 2)
 # iter_ = 0
-iter_ = 291
+iter_ = 59
 data_ = np.load(directory + '/iter{}.npz'.format(iter_))
 g = data_['g']
 h = data_['h']

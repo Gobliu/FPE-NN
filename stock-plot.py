@@ -20,7 +20,7 @@ x_max = 0.015
 x_points = 100
 # x_points = config.X_POINTS
 # print(x_gap)
-t_gap = 1
+t_gap = 0.001
 
 learning_rate_gh = 1e-6
 gh_epoch = 1000
@@ -51,7 +51,7 @@ def test_one_euler(x, g, h, data):
     n_sample = data.test_data.shape[0]
     predict_t_points = data.test_data.shape[1]
     predict_pxt_euler = np.zeros((n_sample, predict_t_points, x.shape[0]))
-    for sample in range(data.n_sample):
+    for sample in range(n_sample):
         p0 = data.train_data[sample, -1, :]
         relative_t = data.test_t[sample, :, :] - data.train_t[sample, -1, :]
         k1 = np.matmul(g * p0, dx) + np.matmul(h * p0, dxx)
@@ -68,7 +68,7 @@ def test_step_euler(x, g, h, data):
     n_sample = data.test_data.shape[0]
     predict_t_points = data.test_data.shape[1]
     predict_pxt_euler = np.zeros((n_sample, predict_t_points, x.shape[0]))
-    for sample in range(data.n_sample):
+    for sample in range(n_sample):
     # for sample in range(1):
         rep_p = copy.copy(data.train_data[sample, -1, :])
         # print(rep_p[50:60])
@@ -101,13 +101,13 @@ N_frag = [[14, 44], [44, 74], [74, 104], [111, 141], [141, 171], [171, 201], [20
 
 data_ = np.loadtxt('./stock/data_x.dat')
 # data_ *= 100
-n_sequence = len(N_frag)
+n_sequence = len(F_frag)
 print(n_sequence)
 noisy_pxt = np.zeros((n_sequence, t_point, x_points))
 for s in range(n_sequence):
     # print(FTSE_fragment[s], FTSE_fragment[s][1] - FTSE_fragment[s][0])
-    start, end = N_frag[s]
-    noisy_pxt[s, :, :] = data_[start: end, 200:]
+    start, end = F_frag[s]
+    noisy_pxt[s, :, :] = data_[start: end, :100]
 
 # sum_ = np.sum(data_[:1000, :100], axis=0)
 # print(sum_.shape)
@@ -124,11 +124,11 @@ win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(noisy_data.train_data, noi
 print(win_y.shape, np.sum(win_y**2))
 # denom = np.sum(win_y**2)
 
-directory = '/home/liuwei/GitHub/Result/Stock/{}_p{}_win{}{}_{}_v3'.format('FTSE', 20, 5, 5, 3)
+directory = '/home/liuwei/GitHub/Result/Stock/{}_p{}_win{}{}_{}_cw0'.format('FTSE', 20, 5, 5, 2)
 # directory = '/home/liuwei/GitHub/Result/Stock/{}_p{}_win{}{}_{}_v3'.format('DOW', 20, 5, 5, 0)
 # directory = '/home/liuwei/Cluster/Stock/{}_p{}_win{}{}_{}_v3'.format('Nikki', 20, 5, 5, 0)
-# iter_ = 0
-iter_ = 209
+iter_ = 0
+# iter_ = 66
 data_ = np.load(directory + '/iter{}.npz'.format(iter_))
 g = data_['g'] * t_gap
 h = data_['h'] * t_gap
@@ -159,18 +159,19 @@ predict_one_euler = test_one_euler(x, g, h, noisy_data)
 predict_step_euler = test_step_euler(x, g, h, noisy_data)
 # print('~~~~~~~~~~~~~~~~~~~~')
 print(predict_step_euler.shape)
-print(noisy_data.train_data[0, -1, 50:60], noisy_data.test_data[0, 0, 50:60], predict_one_euler[0, 0, 50:60])
+print(noisy_data.train_data[0, -1, 50:60], noisy_data.test_data[0, 0, 50:60], predict_one_euler[0, -1, 50:60])
 
-# plt.figure()
-# plt.plot(predict_one_euler[10, 0, :], 'k-', label='after train', linewidth=1)
+plt.figure()
+plt.plot(predict_one_euler[0, -1, :], 'k-', label='after train', linewidth=1)
+plt.plot(predict_one_euler[0, 0, :], 'r-', label='after train', linewidth=1)
 # plt.plot(noisy_data.train_data[10, -1, :], 'r', label='trained_p', linewidth=1)
-# # plt.plot(one_pred[sample, :, 2], 'r-', label='pred', linewidth=1)
+# plt.plot(one_pred[sample, :, 2], 'r-', label='pred', linewidth=1)
 # plt.plot(noisy_data.test_data[10, 0, :], 'b-', label='input', linewidth=1)
-# # plt.plot(P[2, 44, :], 'r-', label='trained', linewidth=1)
-# # plt.plot(pre_P[1, -1, :], 'b-', label='p_initial', linewidth=1)
-# plt.legend()
-# # plt.title('iter {}'.format(i))
-# plt.show()
+# plt.plot(P[2, 44, :], 'r-', label='trained', linewidth=1)
+# plt.plot(pre_P[1, -1, :], 'b-', label='p_initial', linewidth=1)
+plt.legend()
+# plt.title('iter {}'.format(i))
+plt.show()
 
 # print(noisy_data.train_data[0, -1, 50:60])
 # sys.exit()
@@ -311,8 +312,8 @@ ax = plt.subplot(2, 3, 6)
 plt.text(-0.1, 1.10, 'F', fontsize=20, transform=ax.transAxes, fontweight='bold', va='top')
 # plt.plot([1, 2, 3, 4, 5], [0.0435, 0.0760, 0.1139, 0.1327, 0.1554], 'b-o', linewidth=3, ms=10, label='$DRN$')
 # ~~~~~~~~~~~~~~~~~~~~~~ FTSE
-# plt.errorbar([1, 2, 3, 4, 5], [0.00086858, 0.00131982, 0.00190142, 0.00274255, 0.00323444],
-#              [0.00089647, 0.00139888, 0.00252809, 0.00428139, 0.00584501],
+# plt.errorbar([1, 2, 3, 4, 5], [0.000820, 0.00175, 0.00254, 0.00323, 0.00326],
+#              [0.000773, 0.00170, 0.00336, 0.00322, 0.00331],
 #              fmt='o', capthick=5, label='$DRN$')
 # plt.errorbar([1, 2, 3, 4, 5], [0.00076, 0.00114, 0.00179, 0.00249, 0.00264],
 #              [0.000828, 0.00116, 0.00207, 0.00316, 0.00396],

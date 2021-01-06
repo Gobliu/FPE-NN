@@ -63,7 +63,7 @@ def data_spit(stock_type, start, end):
     stock_dif[1:] = np.sum((stock[:-1] - stock[1:]) ** 2, axis=1)       # should start from 0
     print(max(stock_dif), min(stock_dif), np.std(stock_dif), np.mean(stock_dif))        # load mean and std
     dif_mean, dif_std = np.mean(stock_dif), np.std(stock_dif)
-    threshold = dif_mean + 2.5 * dif_std
+    threshold = dif_mean + 2 * dif_std
     stock_dif[stock_dif < threshold] = 0
     print(stock_dif)
     train_stock = np.copy(stock[:-(gap_range+test_range)])

@@ -29,11 +29,11 @@ learning_rate_gh = 1e-6
 gh_epoch = 10000
 gh_patience = 20
 batch_size = 32
-recur_win_gh = 3
+recur_win_gh = 5
 
 learning_rate_p = 1e-3
 p_epoch_factor = 5
-recur_win_p = 3
+recur_win_p = 5
 
 # valid_win = 9
 verb = 2
@@ -264,9 +264,26 @@ def main(stock, smooth_gh=0.1, smooth_p=False):
                                       train_p_y_ng[sample:sample + 1, ...])
             total_train_p_loss_after += p_loss
 
+            if sample == 10 or sample == 1790:
+                y_model = p_nn_ng.predict([train_p_x, train_p_t_ng[10:11, ...]])
+                # train_p_y_ng[sample:sample + 1, ...]
+                # print(y_model.shape, train_p_y_ng.shape)
+                # sys.exit()
+
+                plt.figure()
+                plt.plot(y_model[0, :, 0], label='0', linewidth=1)
+                plt.plot(train_p_y_ng[sample, :, 0], label='control 0', linewidth=1)
+                plt.plot(y_model[0, :, -1], label='-1', linewidth=1)
+                plt.plot(train_p_y_ng[sample, :, -1], label='control -1', linewidth=1)
+                plt.legend()
+                plt.savefig(directory + '/iter{}_{}'.format(iter_, sample))
+
         L_P = total_train_p_loss_after
 
-        # update_data.train_data = padding_by_axis2_smooth(update_data.train_data, 5)
+        y_model = p_nn_ng.predict([train_p_x, train_p_t_ng[10:11, ...]])
+        # train_p_y_ng[sample:sample + 1, ...]
+        # print(y_model.shape, train_p_y_ng.shape)
+        # sys.exit()
 
         win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(update_data.train_data, update_data.train_t,
                                                               recur_win_gh)

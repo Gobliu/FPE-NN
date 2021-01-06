@@ -43,7 +43,7 @@ t_sro = 7
 
 test_ratio = 0.2
 gap_ratio = 0.1
-epoch = 10000
+epoch = 1
 
 
 def test_one_step(x, g, h, p, t):
@@ -216,15 +216,15 @@ def main(stock_type, start, end, run_, train_win, test_win):
             func = np.poly1d(np.polyfit(x[20:80], hh[20:80], 2))
             fitted_h = func(x)
 
-            plt.figure()
-            plt.plot(gg, 'k-', label='gg', linewidth=1)
-            plt.plot(fitted_g, 'r-', label='gg', linewidth=1)
-            plt.show()
-
-            plt.figure()
-            plt.plot(hh, 'k-', label='gg', linewidth=1)
-            plt.plot(fitted_h, 'r-', label='gg', linewidth=1)
-            plt.show()
+            # plt.figure()
+            # plt.plot(gg, 'k-', label='gg', linewidth=1)
+            # plt.plot(fitted_g, 'r-', label='gg', linewidth=1)
+            # plt.show()
+            #
+            # plt.figure()
+            # plt.plot(hh, 'k-', label='gg', linewidth=1)
+            # plt.plot(fitted_h, 'r-', label='gg', linewidth=1)
+            # plt.show()
 
             print(np.sum(abs(gg)), np.sum(abs(hh)))
 
@@ -247,11 +247,14 @@ def main(stock_type, start, end, run_, train_win, test_win):
             for sample in range(n_sample):
                 train_p_y = np.copy(train_y[sample:sample+1])
                 train_p_t = np.copy(train_t[sample:sample+1])
+
                 # train_p_p = np.copy(train_p[sample]).reshape((-1, 1, 1))
 
                 test_p_y = np.copy(test_y[sample:sample+1]).reshape((-1, 100))
-                test_p_t = np.copy(test_t[sample:sample+1]).reshape((-1, 1))              # 2d [n, 1]
+                test_p_t = np.copy(test_t[sample:sample+1])             # 2d [n, 1]
 
+                print(train_p_t.shape, test_p_t.shape)
+                # sys.exit()
                 # print(test_p_y.shape)
                 # sys.exit()
                 # print(train_p_y.shape, train_p_t.shape, test_p_y.shape, test_p_t.shape)
@@ -291,11 +294,15 @@ def main(stock_type, start, end, run_, train_win, test_win):
                 # # plt.title('iter {}'.format(i))
                 # plt.show()
 
-                pred_p_before_train = test_one_step(x, gg[:, 0, 0], hh[:, 0, 0], train_p_p[:, 0, 0], test_p_t)
-                err_bt.append(np.sum((pred_p_before_train - test_p_y)**2, axis=1))
-
                 # trained_p = signal.savgol_filter(trained_p, 7, 2)
-                pred_p_after_train = test_one_step(x, gg[:, 0, 0], hh[:, 0, 0], trained_p, test_p_t)
+                y_model = p_nn_ng.predict([train_p_x, test_p_t])[0].transpose()
+
+                pred_p_before_train = test_one_step(x, gg[:, 0, 0], hh[:, 0, 0], train_p_p[:, 0, 0],
+                                                    test_p_t.reshape((-1, 1)))
+                # print(y_model.shape, pred_p_before_train.shape)
+                # sys.exit()
+                err_bt.append(np.sum((pred_p_before_train - test_p_y)**2, axis=1))
+                pred_p_after_train = test_one_step(x, gg[:, 0, 0], hh[:, 0, 0], trained_p, test_p_t.reshape((-1, 1)))
                 # smooth
                 pred_p_after_train[pred_p_after_train < 0] = 0
                 pred_p_after_train = signal.savgol_filter(pred_p_after_train, 7, 2, axis=1)
@@ -310,14 +317,16 @@ def main(stock_type, start, end, run_, train_win, test_win):
                 print(np.sum((train_p_p[:, 0, 0] - test_p_y) ** 2, axis=1))
 
                 plt.figure()
-                plt.plot(pred_p_after_train[0], label='after train 0', linewidth=1)
+                # plt.plot(pred_p_after_train[0], label='after train 0', linewidth=1)
                 # plt.plot(pred_p_after_train[1], label='after train 1', linewidth=1)
-                # plt.plot(pred_p_after_train[2], label='after train 2', linewidth=1)
+                plt.plot(pred_p_after_train[2], label='after train 2', linewidth=1)
                 # plt.plot(pred_p_after_train[3], label='after train 3', linewidth=1)
-                plt.plot(pred_p_after_train[4], label='after train 4', linewidth=1)
+                # plt.plot(pred_p_after_train[4], label='after train 4', linewidth=1)
+                plt.plot(y_model[0], 'r-', label='y model 2', linewidth=1)
+                # plt.plot(y_model[])
                 plt.plot(trained_p, label='trained_p', linewidth=1)
-                plt.plot(test_p_y[0], label='test_p 0', linewidth=1)
-                plt.plot(test_p_y[4], label='test_p 4', linewidth=1)
+                # plt.plot(test_p_y[0], label='test_p 0', linewidth=1)
+                # plt.plot(test_p_y[4], label='test_p 4', linewidth=1)
                 # plt.plot(one_pred[sample, :, 2], 'r-', label='pred', linewidth=1)
                 # plt.plot(train_p_p[:, 0, 0], label='untrained_p', linewidth=1)
                 # plt.plot(P[2, 44, :], 'r-', label='trained', linewidth=1)
