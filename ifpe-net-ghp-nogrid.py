@@ -105,7 +105,7 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     print(x_points)
     t = data['t']
     print(t.shape)
-    print(t[:10])
+    # print(t[:10])
 
     true_pxt = data['true_pxt']
     noisy_pxt = data['noisy_pxt']
