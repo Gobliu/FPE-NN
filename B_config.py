@@ -2,13 +2,14 @@
 # T_GAP = 0.00005
 
 # RUN_ID = 2013   # 2012
-RUN_ID = 10
+# RUN_ID = 12         # sigma 0.05        multiple
+RUN_ID = 12
 # RUN_ID = 2020       # change x range
 T_GAP = 0.0001
 
 X_POINTS = 100
-X_MIN = 0.1
-X_MAX = 1.1
+X_MIN = 0.2
+X_MAX = 1.2
 # X_POINTS = 199
 # X_MIN = 0.01
 # X_MAX = 2.0
@@ -25,4 +26,5 @@ EPOCH = 20000
 BATCH_SIZE = 64
 PATIENCE = 20
 
-SIGMA = 0.018
+SIGMA = 0.01
+# SIGMA = 0.018

@@ -12,8 +12,8 @@ from NonGridModules.FPLeastSquare_NG import FPLeastSquare_NG
 from NonGridModules.FPENet_NG import FPENet_NG
 from NonGridModules.Loss import Loss
 
-# import OU_config as config
-import B_config as config
+import OU_config as config
+# import B_config as config
 # import Boltz_config as config
 
 from GridModules.GaussianSmooth import GaussianSmooth
@@ -40,8 +40,8 @@ verb = 2
 p_epoch_factor = 5
 gh = 'lsq'         # check
 n_iter = 500
-test_range = 5
-sf_range = 7
+test_range = 0
+sf_range = 9
 t_sro = 7
 x_r = [6, 81]     # Bessel 10
 # x_r = [14, 87]      # Boltz 1
@@ -86,10 +86,10 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     while run_ < 100:
         # directory = '/home/liuwei/GitHub/Result/Boltz/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
         #                                                                           recur_win_p, run_)
-        directory = '/home/liuwei/GitHub/Result/Bessel/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
-                                                                                   recur_win_p, run_)
-        # directory = '/home/liuwei/GitHub/Result/OU/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
-                                                                               # recur_win_p, run_)
+        # directory = '/home/liuwei/GitHub/Result/Bessel/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
+        #                                                                            recur_win_p, run_)
+        directory = '/home/liuwei/GitHub/Result/OU/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
+                                                                               recur_win_p, run_)
         if os.path.exists(directory):
             run_ += 1
             pass
@@ -98,8 +98,8 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
             break
 
     # data = np.load('./Pxt/Boltz_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
-    data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
-    # data = np.load('./Pxt/OU_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
+    # data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
+    data = np.load('./Pxt/OU_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
     x = data['x']
     x_points = x.shape[0]
     print(x_points)
@@ -110,11 +110,12 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     true_pxt = data['true_pxt']
     noisy_pxt = data['noisy_pxt']
     print(true_pxt.shape)
-    sys.exit()
+    # sys.exit()
     true_pxt[true_pxt < 0] = 0
     noisy_pxt[noisy_pxt < 0] = 0
 
     log = open(directory + '/train.log', 'w')
+    log.write('Bessel_id{}_{}_sigma{}.npz \n'.format(run_id, seed, sigma))
     log.write('learning rate gh: {} \n'.format(learning_rate_gh))
     log.write('learning rate p: {} \n'.format(learning_rate_p))
     log.write('t_sro: {} \n'.format(t_sro))
@@ -133,11 +134,11 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     # real_g = x - 1
     # real_h = 0.2 * x**2
     # Bessel
-    real_g = 1/x - 0.2
-    real_h = 0.5 * np.ones(x.shape)
+    # real_g = 1/x - 0.2
+    # real_h = 0.5 * np.ones(x.shape)
     # OU
-    # real_g = 2.86 * x
-    # real_h = 0.0013 * np.ones(x.shape)
+    real_g = 2.86 * x
+    real_h = 0.0013 * np.ones(x.shape)
 
     if smooth_p:
         update_pxt = np.copy(smooth_pxt)
@@ -202,7 +203,7 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     np.save(directory + '/p_weight.npy', p_weight)
 
     # train gh not end2end, train p end2end
-    win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(smooth_data.train_data, smooth_data.train_t, recur_win_gh)
+    win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_center(smooth_data.train_data, smooth_data.train_t, recur_win_gh)
     train_gh_x_ng = np.copy(win_x)
     train_gh_y_ng = np.copy(win_y)
     train_gh_t_ng = np.copy(win_t)
@@ -214,13 +215,13 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     # # print(win_t[45])
     # # print(win_t[46])
     # sys.exit()
-    win_x, win_t, win_y, win_id = PxtData_NG.get_recur_win_e2e(smooth_data.train_data, smooth_data.train_t, recur_win_p)
+    win_x, win_t, win_y, win_id = PxtData_NG.get_recur_win_center(smooth_data.train_data, smooth_data.train_t, recur_win_p)
     train_p_p_ng = np.copy(win_x)
     train_p_y_ng = np.copy(win_y)
     train_p_t_ng = np.copy(win_t)
 
     log = open(directory + '/train.log', 'a')
-    true_train_x, _, _, _ = PxtData_NG.get_recur_win_e2e(true_data.train_data, true_data.train_t, recur_win_p)
+    true_train_x, _, _, _ = PxtData_NG.get_recur_win_center(true_data.train_data, true_data.train_t, recur_win_p)
     log.write('Initial error of p: {} \n'.format(np.sum((train_p_p_ng - true_train_x)**2)**0.5))
     log.close()
 
@@ -301,14 +302,14 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
 
         # update_data_ng.train_data = padding_by_axis2_smooth(update_data_ng.train_data, 5)
 
-        win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(update_data_ng.train_data, update_data_ng.train_t,
-                                                              recur_win_gh)
+        win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_center(update_data_ng.train_data, update_data_ng.train_t,
+                                                                 recur_win_gh)
         train_gh_x_ng = np.copy(win_x)
         train_gh_y_ng = np.copy(win_y)
         train_gh_t_ng = np.copy(win_t)  # key??
 
-        win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_e2e(update_data_ng.train_data, update_data_ng.train_t,
-                                                              recur_win_p)
+        win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_center(update_data_ng.train_data, update_data_ng.train_t,
+                                                                 recur_win_p)
         train_p_p_ng = np.copy(win_x)
 
         log = open(directory + '/train.log', 'a')

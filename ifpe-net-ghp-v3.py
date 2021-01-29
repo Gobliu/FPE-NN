@@ -13,8 +13,8 @@ from NonGridModules.FPENet_NG import FPENet_NG
 from NonGridModules.Loss import Loss
 
 # import OU_config as config
-# import B_config as config
-import Boltz_config as config
+import B_config as config
+# import Boltz_config as config
 
 from GridModules.GaussianSmooth import GaussianSmooth
 
@@ -40,7 +40,7 @@ verb = 2
 p_epoch_factor = 5
 gh = 'lsq'         # check
 n_iter = 500
-test_range = 5
+test_range = 0
 sf_range = 7
 t_sro = 7
 # x_r = [6, 81]     # Bessel 10
@@ -84,10 +84,10 @@ def padding_by_axis2_smooth(data, size):
 def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     run_ = 0
     while run_ < 100:
-        directory = '/home/liuwei/GitHub/Result/Boltz/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
-                                                                                  recur_win_p, run_)
-        # directory = '/home/liuwei/GitHub/Result/Bessel/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
-        #                                                                            recur_win_p, run_)
+        # directory = '/home/liuwei/GitHub/Result/Boltz/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
+        #                                                                           recur_win_p, run_)
+        directory = '/home/liuwei/GitHub/Result/Bessel/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
+                                                                                   recur_win_p, run_)
         # directory = '/home/liuwei/GitHub/Result/OU/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
                                                                                # recur_win_p, run_)
         if os.path.exists(directory):
@@ -97,8 +97,8 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
             os.makedirs(directory)
             break
 
-    data = np.load('./Pxt/Boltz_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
-    # data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
+    # data = np.load('./Pxt/Boltz_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
+    data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
     # data = np.load('./Pxt/OU_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
     x = data['x']
     x_points = x.shape[0]
@@ -114,27 +114,27 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     true_pxt[true_pxt < 0] = 0
     noisy_pxt[noisy_pxt < 0] = 0
 
-    log = open(directory + '/train.log', 'w')
-    log.write('learning rate gh: {} \n'.format(learning_rate_gh))
-    log.write('learning rate p: {} \n'.format(learning_rate_p))
-    log.write('t_sro: {} center noisy.data\n'.format(t_sro))
-    log.write('p_epoch_factor {}, sf_range: {} \n'.format(p_epoch_factor, sf_range))
-    log.write('Initial error of pxt before smooth: {} ratio {}\n'.
-              format(np.sum((noisy_pxt - true_pxt)**2)**0.5,
-                     np.sum((noisy_pxt - true_pxt)**2)**0.5/np.sum(true_pxt**2)**0.5))
+    with open(directory + '/train.log', 'w') as log:
+        log.write('sigma: {}'.format(sigma))
+        log.write('learning rate gh: {} \n'.format(learning_rate_gh))
+        log.write('learning rate p: {} \n'.format(learning_rate_p))
+        log.write('t_sro: {} center noisy.data\n'.format(t_sro))
+        log.write('p_epoch_factor {}, sf_range: {} \n'.format(p_epoch_factor, sf_range))
+        log.write('Initial error of pxt before smooth: {} ratio {}\n'.
+                  format(np.sum((noisy_pxt - true_pxt)**2)**0.5,
+                         np.sum((noisy_pxt - true_pxt)**2)**0.5/np.sum(true_pxt**2)**0.5))
 
-    smooth_pxt = padding_by_axis2_smooth(noisy_pxt, 5)
-    log.write('Initial error of pxt after smooth: {} ratio {}\n'.
-              format(np.sum((smooth_pxt - true_pxt)**2)**0.5,
-                     np.sum((smooth_pxt - true_pxt)**2)**0.5/np.sum(true_pxt**2)**0.5))
-    log.close()
+        smooth_pxt = padding_by_axis2_smooth(noisy_pxt, 5)
+        log.write('Initial error of pxt after smooth: {} ratio {}\n'.
+                  format(np.sum((smooth_pxt - true_pxt)**2)**0.5,
+                         np.sum((smooth_pxt - true_pxt)**2)**0.5/np.sum(true_pxt**2)**0.5))
 
     # Boltz
-    real_g = x - 1
-    real_h = 0.2 * x**2
+    # real_g = x - 1
+    # real_h = 0.2 * x**2
     # Bessel
-    # real_g = 1/x - 0.2
-    # real_h = 0.5 * np.ones(x.shape)
+    real_g = 1/x - 0.2
+    real_h = 0.5 * np.ones(x.shape)
     # OU
     # real_g = 2.86 * x
     # real_h = 0.0013 * np.ones(x.shape)
@@ -206,7 +206,7 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     train_gh_x_ng = np.copy(win_x)
     train_gh_y_ng = np.copy(win_y)
     train_gh_t_ng = np.copy(win_t)
-    # print(win_t.shape, win_x.shape, win_y.shape)
+    print(win_t.shape, win_x.shape, win_y.shape)
     # print(win_y[0, 0, :])
     # # print(win_t[1])
     # # print(win_t[2])
@@ -214,17 +214,16 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     # # print(win_t[45])
     # # print(win_t[46])
     # sys.exit()
-    # win_x, win_t, win_y, win_id = PxtData_NG.get_recur_win_back(smooth_data.train_data, smooth_data.train_t, recur_win_p)
-    win_x, win_t, win_y, win_id = PxtData_NG.get_recur_win_center(noisy_data.train_data, noisy_data.train_t,
+    win_x, win_t, win_y, win_id = PxtData_NG.get_recur_win_center(smooth_data.train_data, smooth_data.train_t,
                                                                   recur_win_p)
     train_p_p_ng = np.copy(win_x)
     train_p_y_ng = np.copy(win_y)
     train_p_t_ng = np.copy(win_t)
 
-    log = open(directory + '/train.log', 'a')
     true_train_x, _, _, _ = PxtData_NG.get_recur_win_center(true_data.train_data, true_data.train_t, recur_win_p)
-    log.write('Initial error of p: {} \n'.format(np.sum((train_p_p_ng - true_train_x)**2)**0.5))
-    log.close()
+
+    with open(directory + '/train.log', 'a') as log:
+        log.write('Initial error of p: {} \n'.format(np.sum((train_p_p_ng - true_train_x)**2)**0.5))
 
     n_sample = train_p_p_ng.shape[0]
     for iter_ in range(n_iter):
@@ -286,20 +285,11 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
                         epochs=iter_ // p_epoch_factor + 1, verbose=verb, callbacks=[es],
                         validation_data=[[train_p_x, train_p_t_ng[sample:sample + 1, ...]],
                                          train_p_y_ng[sample:sample + 1, ...]])
-            # p_nn_ng.fit([train_p_x, train_p_t_ng[sample:sample + 1, ...]], train_p_y_ng[sample:sample + 1, ...],
-            #             epochs=2000, verbose=verb, callbacks=[es],
-            #             validation_data=[[train_p_x, train_p_t_ng[sample:sample + 1, ...]],
-            #                              train_p_y_ng[sample:sample + 1, ...]])
 
             update_data_ng.train_data[sample_id, t_id] = p_nn_ng.get_layer(name=name + 'p').get_weights()[0][:, 0, 0]
             p_loss = p_nn_ng.evaluate([train_p_x, train_p_t_ng[sample:sample + 1, ...]],
                                       train_p_y_ng[sample:sample + 1, ...])
             total_train_p_loss_after += p_loss
-
-            # y_model_ng = p_nn_ng.predict([train_p_x, train_p_t_ng[sample:sample + 1, ...]])
-            # predict_loss += np.sum((y_model_ng - train_p_y_ng[sample:sample + 1, ...]) ** 2)
-
-        # update_data_ng.train_data = padding_by_axis2_smooth(update_data_ng.train_data, 5)
 
         win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_center(update_data_ng.train_data, update_data_ng.train_t,
                                                                  recur_win_gh)
@@ -320,17 +310,6 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
                          (np.sum((train_gh_x_ng - true_train_x) ** 2)/np.sum(true_train_x**2))**0.5,
                          np.sum((train_p_p_ng - true_train_x) ** 2)**0.5,
                          (np.sum((train_p_p_ng - true_train_x) ** 2)/np.sum(true_train_x**2))**0.5))
-
-        # predict_test_euler = test_steps(x, gg_v_ng[:, 0, 0], hh_v_ng[:, 0, 0], update_data_ng)
-        #
-        # log.write('To True data, euler: \t')
-        # for pos in range(test_range):
-        #     log.write('{} \t'.format(np.sum((predict_test_euler[:, pos, :] - true_data.test_data[:, pos, :]) ** 2)))
-        # log.write('\n')
-        # log.write('To Noisy data, euler: \t')
-        # for pos in range(test_range):
-        #     log.write('{} \t'.format(np.sum((predict_test_euler[:, pos, :] - noisy_data.test_data[:, pos, :]) ** 2)))
-        # log.write('\n')
         log.close()
 
         # save

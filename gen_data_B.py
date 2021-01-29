@@ -94,7 +94,7 @@ def ou_main_run():
 
     noise0 = np.random.randn(n_sample, t_points, x_points)  # normal distribution center N(0, 1) error larger
     noise = np.random.randn(n_sample, t_points, x_points)  # normal distribution center N(0, 1) error larger
-    idx_noise = np.random.randint(-int(0.3 * t_factor), int(0.4 * t_factor), size=(n_sample, t_points))
+    # idx_noise = np.random.randint(-int(0.3 * t_factor), int(0.4 * t_factor), size=(n_sample, t_points))
     seed_list = np.random.randint(0, 10000, n_sample)
     for i in range(n_sample):
         # Generate Data
@@ -104,55 +104,66 @@ def ou_main_run():
         true_pxt[i, :, :] = p
 
         # addition noise
-        noisy_p = p + sigma * noise0[i, ...]
+        # noisy_p = p + sigma * noise0[i, ...]
         # multiplication noise
         # noisy_p = p * (0.01 * noise[i, ...] + 1)
-        noisy_p[noisy_p < 0] = 0
+        # noisy_p[noisy_p < 0] = 0
 
-        print('E P0', np.sum((p[0, :] - noisy_p[0, :]) ** 2))
-        print('Sum', np.sum(p[-1]) * x_gap)
-
-        noisy_pxt[i, :, :] = noisy_p
+        # print('E P0', np.sum((p[0, :] - noisy_p[0, :]) ** 2))
+        # print('Sum', np.sum(p[-1]) * x_gap)
+        #
+        # noisy_pxt[i, :, :] = noisy_p
 
         pxt = FPF.ghx2pxt(g, h, p[0], x_gap, t_gap=t_gap/t_factor, t_points=t_points*t_factor, rk=4, t_sro=7)
 
         # idx_noise = np.random.randint(-int(0.3*t_factor), int(0.4*t_factor), size=t_points)
         # print(idx_noise)
-        pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor)) + idx_noise[i]        # id 2015 or 2017 or 2019
-        # pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor))                         # id 2016 or 2018
-        pxt_idx[pxt_idx < 0] = 0
+        # pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor)) + idx_noise[i]        # id 2015 or 2017 or 2019
+        pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor))                         # even id
+        # pxt_idx[pxt_idx < 0] = 0
         # print(pxt_idx)
         pxt_idx.sort()
-        print('max dis:', np.max(abs(pxt_idx[1:] - pxt_idx[:-1])))
+        # print('max dis:', np.max(abs(pxt_idx[1:] - pxt_idx[:-1])))
 
         t[i, :, 0] = pxt_idx * (t_gap/t_factor)
         # print(t[i])
 
         f_true_pxt[i, :, :] = pxt[pxt_idx]
 
-        # addition noise
-        f_noisy_p = pxt[pxt_idx] + sigma * noise[i, ...]
-
-        f_noisy_p[f_noisy_p < 0] = 0
+        # # addition noise
+        # f_noisy_p = pxt[pxt_idx] + sigma * noise[i, ...]
         #
-        f_noisy_pxt[i, :, :] = f_noisy_p
-        print(np.sum(f_noisy_pxt[i, -1, :]))
+        # f_noisy_p[f_noisy_p < 0] = 0
+        # #
+        # f_noisy_pxt[i, :, :] = f_noisy_p
+        # print(np.sum(f_noisy_pxt[i, -1, :]))
 
-        # plt.figure(figsize=[12, 8])
-        # plt.plot(x[:150], true_pxt[i, 0, :150], 'k-', label='p_initial', linewidth=4)
-        # plt.plot(x[:150], true_pxt[i, -1, :150], 'r-', label='p_final', linewidth=4)
-        # # plt.plot(x, f_true_pxt[i, 1, :], 'y-', label='f_p_initial', linewidth=4)
-        # plt.plot(x[:150], f_true_pxt[i, -1, :150], 'g-', label='f_p_final', linewidth=4)
-        # # plt.plot(x, f_noisy_pxt[i, 1, :], 'r.', label='p_initial')
-        # # plt.plot(x, f_noisy_pxt[i, -1, :], 'b^', label='p_final')
-        # plt.legend(fontsize=30)
-        # plt.ion()
-        # plt.pause(1.5)
-        # plt.close()
-        # # sys.exit()
-        # plt.show()
+    # addition noise
+    # f_noisy_pxt = f_true_pxt + sigma * noise[i, ...]        # 2015+
+    # multiplication noise
+    f_noisy_pxt = f_true_pxt + sigma * noise * f_true_pxt
+
+    print(np.min(f_noisy_pxt))
+    f_noisy_pxt[f_noisy_pxt < 0] = 0
 
     range_ = [19, 119]
+
+    for i in range(n_sample):
+        plt.figure(figsize=[12, 8])
+        # plt.plot(x[:], true_pxt[i, 1, :], 'k-', label='p_initial', linewidth=4)
+        # plt.plot(x[:], true_pxt[i, -1, :], 'r-', label='p_final', linewidth=4)
+        # plt.plot(x[:], f_true_pxt[i, -1, :], 'g-', label='f_p_final', linewidth=4)
+        plt.plot(x[range_[0]:range_[1]], true_pxt[i, 1, range_[0]:range_[1]], 'k-', label='p_initial', linewidth=4)
+        plt.plot(x[range_[0]:range_[1]], true_pxt[i, -1, range_[0]:range_[1]], 'r-', label='p_final', linewidth=4)
+        plt.plot(x[range_[0]:range_[1]], f_true_pxt[i, -1, range_[0]:range_[1]], 'g-', label='f_p_final', linewidth=4)
+
+        plt.legend(fontsize=30)
+        plt.ion()
+        plt.pause(0.6)
+        plt.close()
+        # sys.exit()
+        # plt.show()
+
     print(np.min(f_noisy_pxt[:, :, range_[0]:range_[1]]))
     # print(f_true_pxt[0, 0, :])
     error = f_true_pxt[:, :, range_[0]:range_[1]] - f_noisy_pxt[:, :, range_[0]:range_[1]]

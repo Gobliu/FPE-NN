@@ -96,10 +96,10 @@ def ou_main_run():
 
     t_factor = 10
 
-    noise0 = np.random.randn(n_sample, t_points, x_points)  # normal distribution center N(0, 1) error larger
+    # noise0 = np.random.randn(n_sample, t_points, x_points)  # normal distribution center N(0, 1) error larger
     noise = np.random.randn(n_sample, t_points, x_points)  # normal distribution center N(0, 1) error larger
-    idx_noise = np.random.randint(-int(0.3 * t_factor), int(0.4 * t_factor), size=(n_sample, t_points))
-    seed_list = np.random.randint(0, 10000, n_sample)
+    # idx_noise = np.random.randint(-int(0.3 * t_factor), int(0.4 * t_factor), size=(n_sample, t_points))
+    # seed_list = np.random.randint(0, 10000, n_sample)
     for i in range(n_sample):
         # Generate Data
         print('Generating sample {}'.format(i))
@@ -108,22 +108,22 @@ def ou_main_run():
         true_pxt[i, :, :] = p
 
         # addition noise
-        noisy_p = p + sigma * noise0[i, ...]
+        # noisy_p = p + sigma * noise0[i, ...]
         # multiplication noise
         # noisy_p = p * (0.01 * noise[i, ...] + 1)
-        noisy_p[noisy_p < 0] = 0
+        # noisy_p[noisy_p < 0] = 0
 
-        print('E P0', np.sum((p[0, :] - noisy_p[0, :]) ** 2))
-        print('Sum', np.sum(p[-1]) * x_gap)
-
-        noisy_pxt[i, :, :] = noisy_p
+        # print('E P0', np.sum((p[0, :] - noisy_p[0, :]) ** 2))
+        # print('Sum', np.sum(p[-1]) * x_gap)
+        #
+        # noisy_pxt[i, :, :] = noisy_p
 
         pxt = FPF.ghx2pxt(g, h, p[0], x_gap, t_gap=t_gap/t_factor, t_points=t_points*t_factor, rk=4, t_sro=7)
 
         # idx_noise = np.random.randint(-int(0.3*t_factor), int(0.4*t_factor), size=t_points)
         # print(idx_noise)
-        pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor)) + idx_noise[i]        # odd id
-        # pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor))                     # even id
+        # pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor)) + idx_noise[i]        # odd id
+        pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor))                     # even id
         pxt_idx[pxt_idx < 0] = 0
         # print(pxt_idx)
         pxt_idx.sort()
@@ -136,6 +136,7 @@ def ou_main_run():
 
     # addition noise
     # f_noisy_p = f_true_pxt + sigma * noise[i, ...]        # 2015+
+    # multiplication noise
     f_noisy_pxt = f_true_pxt + sigma * noise * f_true_pxt
 
     print(np.min(f_noisy_pxt))

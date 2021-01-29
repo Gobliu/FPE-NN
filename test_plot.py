@@ -15,27 +15,6 @@ plt.rc('axes', linewidth=2)
 
 # directory = './CSV'
 #
-# noise_factor = [0, 0.1**10, 0.1**9, 0.1**8, 0.1**7, 0.1**6, 0.1**5, 0.1**4, 0.1**3, 0.1**2]
-#
-# mean_l2_gh = np.genfromtxt(directory+'/mean_l2_error_gh.csv', delimiter=',')
-# std_l2_gh = np.genfromtxt(directory+'/std_l2_error_gh.csv', delimiter=',')
-# mean_l2_p = np.genfromtxt(directory+'/mean_l2_error_p.csv', delimiter=',')
-# std_l2_p = np.genfromtxt(directory+'/std_l2_error_p.csv', delimiter=',')
-# mean_lm_gh = np.genfromtxt(directory+'/mean_lm_error_gh.csv', delimiter=',')
-# std_lm_gh = np.genfromtxt(directory+'/std_lm_error_gh.csv', delimiter=',')
-# mean_lm_p = np.genfromtxt(directory+'/mean_lm_error_p.csv', delimiter=',')
-# std_lm_p = np.genfromtxt(directory+'/std_lm_error_p.csv', delimiter=',')
-#
-# no_ps_mean_l2_gh = np.genfromtxt(directory+'/no_ps_mean_l2_error_gh.csv', delimiter=',')
-# no_ps_std_l2_gh = np.genfromtxt(directory+'/no_ps_std_l2_error_gh.csv', delimiter=',')
-# no_ps_mean_l2_p = np.genfromtxt(directory+'/no_ps_mean_l2_error_p.csv', delimiter=',')
-# no_ps_std_l2_p = np.genfromtxt(directory+'/no_ps_std_l2_error_p.csv', delimiter=',')
-# no_ps_mean_lm_gh = np.genfromtxt(directory+'/no_ps_mean_lm_error_gh.csv', delimiter=',')
-# no_ps_std_lm_gh = np.genfromtxt(directory+'/no_ps_std_lm_error_gh.csv', delimiter=',')
-# no_ps_mean_lm_p = np.genfromtxt(directory+'/no_ps_mean_lm_error_p.csv', delimiter=',')
-# no_ps_std_lm_p = np.genfromtxt(directory+'/no_ps_std_lm_error_p.csv', delimiter=',')
-#
-#
 # fig_g = plt.figure(figsize=[12, 8])
 # d1, d2 = mean_l2_gh.shape
 # d2 = 6
@@ -58,7 +37,7 @@ plt.rc('axes', linewidth=2)
 # directory = './Result/Bessel/{}_id{}_p{}_win{}{}'.format(1, 6, 10, 9, 9)
 # directory = '/home/liuwei/Cluster/Bessel/id{}_{}_p{}_win{}{}'.format(2016, 2, 10, 13, 13)
 # directory = '/home/liuwei/GitHub/FPE-Net-Results/Bessel/id10_11_p10_win1313'
-directory = '/home/liuwei/GitHub/Result/Bessel/id10_p10_win1313_6'
+directory = '/home/liuwei/GitHub/Result/Bessel/id12_p10_win1313_0'
 # directory = '/home/liuwei/Cluster/Bessel/id{}_p{}_win{}{}_{}'.format(2016, 10, 13, 13, 0)
 # real_g = 1/x - 0.2
 # real_h = 0.0013 * np.ones(x_points)
@@ -69,14 +48,14 @@ error_h = np.zeros(iter_range)
 error_p = np.zeros(iter_range)
 iter_no = np.arange(0, iter_range, 1)
 
-data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(10, 19822012, 0.018))
+data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(12, 19822012, 0.05))
 x = data['x']
 print(x)
-# x_points = x.shape[0]
-# print(x_points)
-# t = data['t']
-# true_pxt = data['true_pxt']
-# noisy_pxt = data['noisy_pxt']
+x_points = x.shape[0]
+print(x_points)
+t = data['t']
+true_pxt = data['true_pxt']
+noisy_pxt = data['noisy_pxt']
 
 real_g = 1 / x - 0.2
 real_h = 0.5 * np.ones(x.shape)
@@ -103,32 +82,17 @@ pre_h = real_h
 
 # print(x, p_weight)
 for iter_ in range(0, iter_range):
-    # iter_ = 140
-    cal_g = np.load(directory + '/iter{}_gg_ng.npy'.format(iter_))
+    npz = np.load(directory + '/iter{}.npz'.format(iter_))
+    cal_g = npz['g']
+    cal_h = npz['h']
     error_g[iter_] = np.sum((cal_g - real_g)**2)
-    cal_h = np.load(directory + '/iter{}_hh_ng.npy'.format(iter_))
-    error_h[iter_] = np.sum((cal_h - real_h) ** 2)
-
-    # cal_g = np.load(directory + '/gg_iter{}_smooth.npy'.format(iter_))
-    # error_g[iter_] = np.sum((cal_g - real_g)**2)
-    # cal_h = np.load(directory + '/hh_iter{}_smooth.npy'.format(iter_))
-    # error_h[iter_] = np.sum((cal_h - real_h) ** 2)
+    error_h[iter_] = np.sum((cal_h - real_h)**2)
 
     print(np.sum((cal_g - real_g)**2), np.sum(real_g**2))
     print(np.sum((cal_h - real_h) ** 2), np.sum(real_h ** 2))
     print(np.sum((cal_g - real_g)**2)/np.sum(real_g**2), np.sum((cal_h - real_h)**2)/np.sum(real_h**2))
     print(np.sum(p_weight * (cal_g - real_g) ** 2) / np.sum(p_weight * real_g ** 2),
           np.sum(p_weight * (cal_h - real_h) ** 2) / np.sum(p_weight * real_h ** 2))
-
-    # old_g = np.load('/home/liuwei/DRN-FPE/FPE-2019/inverse_problem/Jan2020/Results/Feb2_id0e100p1_smoothTrue_rewin9'
-    #                 '/gg_iter490_smooth.npy')
-    # old_h = np.load('/home/liuwei/DRN-FPE/FPE-2019/inverse_problem/Jan2020/Results/Feb2_id0e100p1_smoothTrue_rewin9'
-    #                 '/hh_iter490_smooth.npy')
-
-    # cal_p = np.load(directory + '/train_data_iter{}.npy'.format(iter_))
-    # error_p[iter_] = np.sum((cal_p - real_p)**2)
-    # print(iter_, np.sum((cal_p - real_p)**2))
-    # print(cal_p.shape)
 
     plt.figure(figsize=[12, 8])
     plt.plot(x, real_g, 'k-', linewidth=4, label='Real')
@@ -160,82 +124,6 @@ for iter_ in range(0, iter_range):
     plt.legend(loc='upper left', bbox_to_anchor=[0.4, 1], ncol=1)
     plt.show()
 
-    plt.figure(figsize=[12, 8])
-    # # px = np.linspace(-0.01, 0.1, num=110, endpoint=False)
-    plt.plot(x, p_weight, 'k-', linewidth=4, label='Real')
-    plt.axhline(y=np.max(p_weight)*0.1, ls='--', c='blue', linewidth=4)
-    plt.axvline(x=0.25, ls='--', c='blue', linewidth=4)
-    plt.axvline(x=0.81, ls='--', c='blue', linewidth=4)
-    # # plt.plot(px, p_weight_OU, 'k-', linewidth=4, label='Cal')
-    # # plt.plot(x, pre_h, 'b+', linewidth=4, label='Pre')
-    # # plt.plot(x, old_h, 'b+', linewidth=4, label='Old Cal')
-    # plt.xlabel('x',  fontweight='bold')
-    # plt.ylabel('P', fontsize=24, fontweight='bold')
-    # plt.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
-    # plt.title('P(x)', fontweight='bold',
-    #           horizontalalignment='center', verticalalignment='baseline')
-    # plt.legend(loc='upper left', bbox_to_anchor=[0.1, 1], ncol=1)
-    plt.show()
-
     pre_g = cal_g
     pre_h = cal_h
-    # plt.figure(figsize=[12, 8])
-    # plt.plot(x, real_p[0, 0, :], 'k-', linewidth=4, label='Real')
-    # plt.plot(x, cal_p[0, 0, :], 'ro', linewidth=4, label='New Cal')
-    # # plt.plot(x, old_h, 'b+', linewidth=4, label='Old Cal')
-    # plt.xlabel('x',  fontweight='bold')
-    # plt.ylabel('p', fontsize=24, fontweight='bold')
-    # plt.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
-    # plt.title('p(x)\n', fontweight='bold',
-    #           horizontalalignment='center', verticalalignment='baseline')
-    # plt.legend(loc='upper left', bbox_to_anchor=[0.4, 1], ncol=1)
-    # plt.show()
 
-# plt.figure(figsize=[12, 8])
-# plt.plot(iter_no, error_g, linewidth=4)
-# # plt.plot(iter_no, error_h)
-# plt.xlabel('Iteration',  fontweight='bold')
-# plt.ylabel('L2 error', fontsize=24, fontweight='bold')
-# plt.title('L2 Error of G', fontweight='bold',
-#           horizontalalignment='center', verticalalignment='baseline')
-# # plt.legend(loc='upper left', bbox_to_anchor=[0.7, 1], ncol=2)
-# plt.show()
-# #
-# plt.figure(figsize=[12, 8])
-# plt.plot(iter_no, error_h, linewidth=4)
-# plt.ticklabel_format(axis="y", style="sci", scilimits=(0,0))
-# plt.xlabel('Iteration',  fontweight='bold')
-# plt.ylabel('L2 error', fontsize=24, fontweight='bold')
-# plt.title('L2 Error of H', fontweight='bold',
-#           horizontalalignment='center', verticalalignment='baseline')
-# # plt.legend(loc='upper left', bbox_to_anchor=[0.7, 1], ncol=2)
-# plt.show()
-#
-# p1 = 137610 * np.ones(iter_range)
-# p2 = 15088 * np.ones(iter_range)
-# plt.figure(figsize=[12, 8])
-# plt.plot(iter_no, error_p, linewidth=4, label='Trained P')
-# plt.plot(iter_no, p1, '--', linewidth=4, label='Noisy P')
-# plt.plot(iter_no, p2, '-.', linewidth=4, label='Smoothed P')
-# plt.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
-# plt.xlabel('Iteration',  fontweight='bold')
-# plt.ylabel('L2 error', fontsize=24, fontweight='bold')
-# plt.title('L2 Error of P', fontweight='bold',
-#           horizontalalignment='center', verticalalignment='baseline')
-# plt.legend(loc='upper left', bbox_to_anchor=[0, 0.7], ncol=1)
-# plt.show()
-
-# p1 = 6905 * np.ones(iter_range)
-# p2 = 6977 * np.ones(iter_range)
-# plt.figure(figsize=[12, 8])
-# plt.plot(iter_no, valid_list[:iter_range], 'b-', linewidth=4, label='Validation Loss')
-# plt.plot(iter_no, test_list[:iter_range], 'r-', linewidth=4, label='Test Loss')
-# plt.plot(iter_no, p1, '--', linewidth=4, label='Validation Reference')
-# plt.plot(iter_no, p2, '-.', linewidth=4, label='Test Reference')
-# plt.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
-# plt.xlabel('Iteration',  fontweight='bold')
-# plt.ylabel('L2 error', fontsize=24, fontweight='bold')
-# plt.title('L2 Error of P', fontweight='bold',
-#           horizontalalignment='center', verticalalignment='baseline')
-# plt.legend(loc='upper left', bbox_to_anchor=[0, 1], ncol=1)
-# plt.show()
