@@ -1,7 +1,7 @@
 # for Boltz
 
-# RUN_ID = 1
-RUN_ID = 'test'
+RUN_ID = 1
+# RUN_ID = 'test'
 T_GAP = 0.0005
 X_POINTS = 200
 X_MIN = 0.
@@ -20,5 +20,5 @@ BATCH_SIZE = 32
 PATIENCE = 20
 
 # SIGMA = 0.020        # ID 17
-SIGMA = 0.01           # ID 1
+SIGMA = 0.05           # ID 1
 # SIGMA = 0.1             # ID 3
