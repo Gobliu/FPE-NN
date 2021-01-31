@@ -12,8 +12,8 @@ from NonGridModules.FPLeastSquare_NG import FPLeastSquare_NG
 from NonGridModules.FPENet_NG import FPENet_NG
 from NonGridModules.Loss import Loss
 
-import OU_config as config
-# import B_config as config
+# import OU_config as config
+import B_config as config
 # import Boltz_config as config
 
 from GridModules.GaussianSmooth import GaussianSmooth
@@ -22,8 +22,8 @@ np.set_printoptions(suppress=True)
 
 name = 'Noisy'
 seed = config.SEED
-x_min = config.X_MIN
-x_max = config.X_MAX
+# x_min = config.X_MIN
+# x_max = config.X_MAX
 # x_points = config.X_POINTS
 # x_gap = (x_max - x_min) / x_points
 t_gap = config.T_GAP
@@ -41,7 +41,7 @@ p_epoch_factor = 5
 gh = 'lsq'         # check
 n_iter = 500
 test_range = 0
-sf_range = 9
+sf_range = 7
 t_sro = 7
 x_r = [6, 81]     # Bessel 10
 # x_r = [14, 87]      # Boltz 1
@@ -86,10 +86,10 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     while run_ < 100:
         # directory = '/home/liuwei/GitHub/Result/Boltz/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
         #                                                                           recur_win_p, run_)
-        # directory = '/home/liuwei/GitHub/Result/Bessel/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
-        #                                                                            recur_win_p, run_)
-        directory = '/home/liuwei/GitHub/Result/OU/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
-                                                                               recur_win_p, run_)
+        directory = '/home/liuwei/GitHub/Result/Bessel/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
+                                                                                   recur_win_p, run_)
+        # directory = '/home/liuwei/GitHub/Result/OU/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
+        #                                                                        recur_win_p, run_)
         if os.path.exists(directory):
             run_ += 1
             pass
@@ -98,11 +98,12 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
             break
 
     # data = np.load('./Pxt/Boltz_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
-    # data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
-    data = np.load('./Pxt/OU_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
+    data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
+    # data = np.load('./Pxt/OU_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
     x = data['x']
     x_points = x.shape[0]
-    print(x_points)
+    print(x)
+    sys.exit()
     t = data['t']
     print(t.shape)
     # print(t[:10])
@@ -115,7 +116,7 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     noisy_pxt[noisy_pxt < 0] = 0
 
     log = open(directory + '/train.log', 'w')
-    log.write('Bessel_id{}_{}_sigma{}.npz \n'.format(run_id, seed, sigma))
+    log.write('id{}_{}_sigma{}.npz \n'.format(run_id, seed, sigma))
     log.write('learning rate gh: {} \n'.format(learning_rate_gh))
     log.write('learning rate p: {} \n'.format(learning_rate_p))
     log.write('t_sro: {} \n'.format(t_sro))
@@ -134,11 +135,11 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     # real_g = x - 1
     # real_h = 0.2 * x**2
     # Bessel
-    # real_g = 1/x - 0.2
-    # real_h = 0.5 * np.ones(x.shape)
+    real_g = 1/x - 0.2
+    real_h = 0.5 * np.ones(x.shape)
     # OU
-    real_g = 2.86 * x
-    real_h = 0.0013 * np.ones(x.shape)
+    # real_g = 2.86 * x
+    # real_h = 0.0013 * np.ones(x.shape)
 
     if smooth_p:
         update_pxt = np.copy(smooth_pxt)
