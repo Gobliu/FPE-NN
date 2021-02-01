@@ -242,7 +242,7 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
         gh_nn_ng.get_layer(name=name + 'h').set_weights([hh_v_ng])
 
         es = callbacks.EarlyStopping(verbose=verb, patience=patience)
-        gh_nn_ng.fit([train_gh_x_ng, train_gh_t_ng], train_gh_y_ng, epochs=10, batch_size=64, verbose=verb,
+        gh_nn_ng.fit([train_gh_x_ng, train_gh_t_ng], train_gh_y_ng, epochs=gh_epoch, batch_size=64, verbose=verb,
                      callbacks=[es], validation_split=0.2)
 
         gg_v_ng = gh_nn_ng.get_layer(name=name + 'g').get_weights()[0]
