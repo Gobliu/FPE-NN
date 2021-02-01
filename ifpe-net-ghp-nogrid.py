@@ -103,7 +103,7 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     x = data['x']
     x_points = x.shape[0]
     print(x)
-    sys.exit()
+    # sys.exit()
     t = data['t']
     print(t.shape)
     # print(t[:10])
@@ -242,7 +242,7 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
         gh_nn_ng.get_layer(name=name + 'h').set_weights([hh_v_ng])
 
         es = callbacks.EarlyStopping(verbose=verb, patience=patience)
-        gh_nn_ng.fit([train_gh_x_ng, train_gh_t_ng], train_gh_y_ng, epochs=gh_epoch, batch_size=64, verbose=verb,
+        gh_nn_ng.fit([train_gh_x_ng, train_gh_t_ng], train_gh_y_ng, epochs=10, batch_size=64, verbose=verb,
                      callbacks=[es], validation_split=0.2)
 
         gg_v_ng = gh_nn_ng.get_layer(name=name + 'g').get_weights()[0]
@@ -279,15 +279,14 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
             sample_id, t_id = win_id[sample]  # no true data, end2end
             print('Training P, Sample id: {}, time id {}'.format(sample_id, t_id))
             p_nn_ng.get_layer(name=name + 'p').set_weights([train_p_p_ng[sample].reshape(-1, 1, 1)])
-            es = callbacks.EarlyStopping(verbose=verb, patience=p_patience)
+            es = callbacks.EarlyStopping(monitor='loss', verbose=verb, patience=p_patience,
+                                         restore_best_weights=True)
             # May 10 change iter_//5
             p_loss = p_nn_ng.evaluate([train_p_x, train_p_t_ng[sample:sample + 1, ...]],
                                       train_p_y_ng[sample:sample + 1, ...])
             total_train_p_loss_before += p_loss
             p_nn_ng.fit([train_p_x, train_p_t_ng[sample:sample + 1, ...]], train_p_y_ng[sample:sample + 1, ...],
-                        epochs=iter_ // p_epoch_factor + 1, verbose=verb, callbacks=[es],
-                        validation_data=[[train_p_x, train_p_t_ng[sample:sample + 1, ...]],
-                                         train_p_y_ng[sample:sample + 1, ...]])
+                        epochs=iter_ // p_epoch_factor + 1, verbose=verb, callbacks=[es])
             # p_nn_ng.fit([train_p_x, train_p_t_ng[sample:sample + 1, ...]], train_p_y_ng[sample:sample + 1, ...],
             #             epochs=2000, verbose=verb, callbacks=[es],
             #             validation_data=[[train_p_x, train_p_t_ng[sample:sample + 1, ...]],

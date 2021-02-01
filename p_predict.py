@@ -75,26 +75,21 @@ def padding_by_axis2_smooth(data, size):
 
 
 def main():
-    op_dir = '/home/liuwei/GitHub/Result/Boltz/test'
+    # op_dir = '/home/liuwei/GitHub/Result/Boltz/test'
+    op_dir = '/home/liuwei/GitHub/Result/OU/test'
     if not os.path.exists(op_dir):
         os.makedirs(op_dir)
 
     # ~~~~~~~~~~~~~~~
-    run_ = 9
-    iter_ = 134
-    ip_dir = '/home/liuwei/GitHub/Result/Boltz/id{}_p{}_win{}{}_{}'.format(1, 10, 13, 13, run_)
-    gg = np.load(ip_dir + '/iter{}_gg_ng.npy'.format(iter_))
-    hh = np.load(ip_dir + '/iter{}_hh_ng.npy'.format(iter_))
-    # ~~~~~~~~~~~~~~~
-    gg = gg.reshape((-1, 1, 1))
-    hh = hh.reshape((-1, 1, 1))
-    # print(gg, hh)
+    # run_ = 2
+    # ip_dir = '/home/liuwei/GitHub/Result/Boltz/id{}_p{}_win{}{}_{}'.format(1, 10, 13, 13, run_)
 
-    # ~~~~~~~~~~~~~~~
+    run_ = 3
+    ip_dir = '/home/liuwei/Cluster/OU/id{}_p{}_win{}{}_{}'.format(1, 10, 13, 13, run_)
 
-    data = np.load('./Pxt/Boltz_id{}_{}_sigma{}.npz'.format('test', 1221732, 0.01))
+    # data = np.load('./Pxt/Boltz_id{}_{}_sigma{}.npz'.format('test', 1221732, 0.01))
     # data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
-    # data = np.load('./Pxt/OU_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
+    data = np.load('./Pxt/OU_id{}_{}_sigma{}.npz'.format('test', 19822012, 0.01))
     x = data['x']
     t = data['t']
     true_pxt = data['true_pxt']
@@ -106,116 +101,131 @@ def main():
     print(t.shape, true_pxt.shape, noisy_pxt.shape)
 
     n_sample, t_points, x_points = noisy_pxt.shape
-    # sys.exit()
 
-    # ~~~~~~~~~~~~~~~~
-    fpe_net_ng = FPENet_NG(x_coord=x, name=name, t_sro=t_sro)
-    p_nn_ng = fpe_net_ng.recur_train_p_direct(learning_rate=learning_rate_p, loss=Loss.sum_square,
-                                              fix_g=gg, fix_h=hh)
-    train_p_x = np.ones((1, x_points, 1))
-    pre_loss = []
-    after_loss = []
-    err_bt = np.zeros((20*(t_points - test_range - train_range + 1), test_range))
-    err_at = np.zeros((20*(t_points - test_range - train_range + 1), test_range))
-    print(err_bt.shape, err_at.shape)
-    count = 0
-    for sample in range(20):
-        for t_idx in range(train_range-1, t_points-test_range):
+    n_sample = 20
 
-            train_p_y = np.copy(noisy_pxt[sample, t_idx-train_range+1: t_idx+1, :])
-            train_p_t = t[sample, t_idx-train_range+1: t_idx+1, :] - t[sample, t_idx, :]
+    for iter_ in range(0, 125, 25):
+    # for iter_ in [0, 125]:
 
-            pred_t = t[sample, t_idx+1: t_idx + test_range+1, :] - t[sample, t_idx, :]
-            test_p_y = np.copy(noisy_pxt[sample, t_idx+1: t_idx+test_range+1, :])
+        gg = np.load(ip_dir + '/iter{}_gg_ng.npy'.format(iter_))
+        hh = np.load(ip_dir + '/iter{}_hh_ng.npy'.format(iter_))
+        # ~~~~~~~~~~~~~~~
+        gg = gg.reshape((-1, 1, 1))
+        hh = hh.reshape((-1, 1, 1))
+        # print(gg, hh)
 
-            # print(train_p_y[-1, 50:60])
-            train_p_y = train_p_y.transpose()
-            # print(train_p_y[50:60, -1])
-            train_p_y = train_p_y.reshape((1, x_points, train_range))
-            # ~~~~~~~~~~~ smooth
-            train_p_y = padding_by_axis2_smooth(train_p_y, 5)           # smooth is better
-            # ~~~~~~~~~~~
-            # print(train_p_y[0, 50:60, -1])
-            train_p_p = np.copy(train_p_y[:, :, -1]).reshape((-1, 1, 1))
-            # train_p_p = np.copy(noisy_pxt[sample, t_points, :]).reshape((-1, 1, 1))
-            # print(train_p_p[50:60, 0, 0])
-            # print(train_p_y[0, :, -1] - train_p_p[:, 0, 0])
-            # sys.exit()
-            train_p_t = train_p_t.reshape(1, 1, -1)
+        # ~~~~~~~~~~~~~~~~
+        fpe_net_ng = FPENet_NG(x_coord=x, name=name, t_sro=t_sro)
+        p_nn_ng = fpe_net_ng.recur_train_p_direct(learning_rate=learning_rate_p, loss=Loss.sum_square,
+                                                  fix_g=gg, fix_h=hh)
+        train_p_x = np.ones((1, x_points, 1))
+        pre_loss = []
+        after_loss = []
+        err_bt = np.zeros((n_sample*(t_points - test_range - train_range + 1), test_range))
+        err_at = np.zeros((n_sample*(t_points - test_range - train_range + 1), test_range))
+        print(err_bt.shape, err_at.shape)
+        count = 0
+        for sample in range(n_sample):
+            for t_idx in range(train_range-1, t_points-test_range):
 
-            p_nn_ng.get_layer(name=name + 'p').set_weights([train_p_p])
+                train_p_y = np.copy(noisy_pxt[sample, t_idx-train_range+1: t_idx+1, :])
+                train_p_t = t[sample, t_idx-train_range+1: t_idx+1, :] - t[sample, t_idx, :]
 
-            print('3', train_p_x.shape, train_p_t.shape, train_p_y.shape)
-            # sys.exit()
-            # ~~~~~~~~~~~~~~~~ loss before train
-            p_loss = p_nn_ng.evaluate([train_p_x, train_p_t], train_p_y)
-            pre_loss.append(p_loss)
+                pred_t = t[sample, t_idx+1: t_idx + test_range+1, :] - t[sample, t_idx, :]
+                test_p_y = np.copy(noisy_pxt[sample, t_idx+1: t_idx+test_range+1, :])
 
-            # ~~~~~~~~~~~~~~~~ prediction before train p
-            pred_t = pred_t.reshape(1, 1, -1)
-            pred_p_before_train = p_nn_ng.predict([train_p_x, pred_t])
-            pred_p_before_train = pred_p_before_train[0, ...].transpose()
+                # print(train_p_y[-1, 50:60])
+                train_p_y = train_p_y.transpose()
+                # print(train_p_y[50:60, -1])
+                train_p_y = train_p_y.reshape((1, x_points, train_range))
+                # ~~~~~~~~~~~ smooth
+                train_p_y = padding_by_axis2_smooth(train_p_y, 5)           # smooth is better
+                # ~~~~~~~~~~~
+                # print(train_p_y[0, 50:60, -1])
+                train_p_p = np.copy(train_p_y[:, :, -1]).reshape((-1, 1, 1))
+                # train_p_p = np.copy(noisy_pxt[sample, t_points, :]).reshape((-1, 1, 1))
+                # print(train_p_p[50:60, 0, 0])
+                # print(train_p_y[0, :, -1] - train_p_p[:, 0, 0])
+                # sys.exit()
+                train_p_t = train_p_t.reshape(1, 1, -1)
 
-            # ~~~~~~~~~~~~~~~~ train
-            es = callbacks.EarlyStopping(verbose=verb, patience=patience)
-            p_nn_ng.fit([train_p_x, train_p_t], train_p_y,
-                        epochs=epoch, verbose=verb, callbacks=[es],
-                        validation_data=[[train_p_x, train_p_t], train_p_y])
+                p_nn_ng.get_layer(name=name + 'p').set_weights([train_p_p])
 
-            # ~~~~~~~~~~~~~~~~ loss after train
-            p_loss = p_nn_ng.evaluate([train_p_x, train_p_t], train_p_y)
-            after_loss.append(p_loss)
+                print('3', train_p_x.shape, train_p_t.shape, train_p_y.shape)
+                # sys.exit()
+                # ~~~~~~~~~~~~~~~~ loss before train
+                p_loss = p_nn_ng.evaluate([train_p_x, train_p_t], train_p_y)
+                pre_loss.append(p_loss)
 
-            # ~~~~~~~~~~~~~~~~ prediction after train p
-            pred_p_after_train = p_nn_ng.predict([train_p_x, pred_t])
-            pred_p_after_train = pred_p_after_train[0, ...].transpose()
+                # ~~~~~~~~~~~~~~~~ prediction before train p
+                pred_t = pred_t.reshape(1, 1, -1)
+                pred_p_before_train = p_nn_ng.predict([train_p_x, pred_t])
+                pred_p_before_train = pred_p_before_train[0, ...].transpose()
 
-            # ~~~~~~~~~~~~~~~~ calculate error
-            err_bt[count, :] = np.sum((pred_p_before_train - test_p_y)**2, axis=1)
-            err_at[count, :] = np.sum((pred_p_after_train - test_p_y) ** 2, axis=1)
-            fix_err = np.sum((train_p_p[:, 0, 0] - test_p_y) ** 2)
-            print(np.sum(err_bt[count]), np.sum(err_at[count]), fix_err)
-            count += 1
+                # ~~~~~~~~~~~~~~~~ train
+                es = callbacks.EarlyStopping(monitor='loss', verbose=verb, patience=patience,
+                                             restore_best_weights=True)
+                p_nn_ng.fit([train_p_x, train_p_t], train_p_y,
+                            epochs=epoch, verbose=verb, callbacks=[es])
 
-            # pred_t = pred_t.reshape(1, 1, -1)
-            # y_model = p_nn_ng.predict([train_p_x, pred_t])
-            # y_model = y_model[0, ...].transpose()
-            # print(np.sum((pred_p_after_train - y_model) ** 2))
-            # print(np.max(y_model), np.max(pred_p_after_train))
+                # ~~~~~~~~~~~~~~~~ loss after train
+                p_loss = p_nn_ng.evaluate([train_p_x, train_p_t], train_p_y)
+                after_loss.append(p_loss)
 
-            print(pred_p_after_train.shape)
-            plt.figure()
-            plt.plot(pred_p_after_train[-1], 'k-', label='after train', linewidth=1)
-            plt.plot(test_p_y[-1], 'r', label='trained_p', linewidth=1)
-            # plt.plot(one_pred[sample, :, 2], 'r-', label='pred', linewidth=1)
-            plt.plot(pred_p_before_train[-1], 'b-', label='input', linewidth=1)
-            # plt.plot(P[2, 44, :], 'r-', label='trained', linewidth=1)
-            # plt.plot(pre_P[1, -1, :], 'b-', label='p_initial', linewidth=1)
-            plt.legend()
-            # plt.title('iter {}'.format(i))
-            plt.show()
+                # ~~~~~~~~~~~~~~~~ prediction after train p
+                pred_p_after_train = p_nn_ng.predict([train_p_x, pred_t])
+                pred_p_after_train = pred_p_after_train[0, ...].transpose()
 
-            print(np.sum((pred_p_before_train - test_p_y)**2, axis=1))
-            print(np.sum((pred_p_after_train - test_p_y) ** 2, axis=1))
-            print(np.sum((fix_err - test_p_y) ** 2, axis=1))
-            sys.exit()
-    log = open(op_dir + '/train.log', 'a')
-    log.write('{} iter {} \n'.format(op_dir, iter_))
-    log.write('lr {} \t epoch {} \t patient {} \t train range {} \t test range {} \n'
-              .format(learning_rate_p, epoch, patience, train_range, test_range))
-    log.write('p loss before {} after {} \n'.format(np.sum(pre_loss), np.sum(after_loss)))
-    log.write('predict error before mean std: 1 {:.3e} {:.3e}, 2 {:.3e} {:.3e}, 3 {:.3e} {:.3e}, 4 {:.3e} {:.3e},'
-              ' 5 {:.3e} {:.3e}\n'.format(np.mean(err_bt[:, 0]), np.std(err_bt[:, 0]),
-                                          np.mean(err_bt[:, 1]), np.std(err_bt[:, 1]),
-                                          np.mean(err_bt[:, 2]), np.std(err_bt[:, 2]),
-                                          np.mean(err_bt[:, 3]), np.std(err_bt[:, 3]),
-                                          np.mean(err_bt[:, 4]), np.std(err_bt[:, 4])))
-    log.write('predict error after mean std: 1 {:.3e} {:.3e}, 2 {:.3e} {:.3e}, 3 {:.3e} {:.3e}, 4 {:.3e} {:.3e},'
-              ' 5 {:.3e} {:.3e}\n'.format(np.mean(err_at[:, 0]), np.std(err_at[:, 0]),
-                                          np.mean(err_at[:, 1]), np.std(err_at[:, 1]),
-                                          np.mean(err_at[:, 2]), np.std(err_at[:, 2]),
-                                          np.mean(err_at[:, 3]), np.std(err_at[:, 3]),
-                                          np.mean(err_at[:, 4]), np.std(err_at[:, 4])))
+                # ~~~~~~~~~~~~~~~~ calculate error
+                err_bt[count, :] = np.sum((pred_p_before_train - test_p_y)**2, axis=1)
+                err_at[count, :] = np.sum((pred_p_after_train - test_p_y) ** 2, axis=1)
+                fix_err = np.sum((train_p_p[:, 0, 0] - test_p_y) ** 2)
+                print(np.sum(err_bt[count]), np.sum(err_at[count]), fix_err)
+                count += 1
+
+                # pred_t = pred_t.reshape(1, 1, -1)
+                # y_model = p_nn_ng.predict([train_p_x, pred_t])
+                # y_model = y_model[0, ...].transpose()
+                # print(np.sum((pred_p_after_train - y_model) ** 2))
+                # print(np.max(y_model), np.max(pred_p_after_train))
+
+                # print(pred_p_after_train.shape)
+                # plt.figure()
+                # plt.plot(pred_p_after_train[-1], 'k-', label='after train', linewidth=1)
+                #
+                # plt.plot(test_p_y[-1], 'r', label='trained_p -1', linewidth=1)
+                # plt.plot(test_p_y[0], 'g-', label='trained_p 0', linewidth=1)
+                # # plt.plot(one_pred[sample, :, 2], 'r-', label='pred', linewidth=1)
+                # plt.plot(pred_p_before_train[-1], 'b-', label='input', linewidth=1)
+                # # plt.plot(P[2, 44, :], 'r-', label='trained', linewidth=1)
+                # # plt.plot(pre_P[1, -1, :], 'b-', label='p_initial', linewidth=1)
+                # plt.legend()
+                # # plt.title('iter {}'.format(i))
+                # plt.show()
+
+                print(np.sum((pred_p_before_train - test_p_y)**2, axis=1))
+                print(np.sum((pred_p_after_train - test_p_y) ** 2, axis=1))
+                print(np.sum((fix_err - test_p_y) ** 2, axis=1))
+                # sys.exit()
+
+        print(np.min(err_bt), np.min(err_at))
+        log = open(op_dir + '/train.log', 'a')
+        log.write('{} iter {} \n'.format(op_dir, iter_))
+        log.write('lr {} \t epoch {} \t patient {} \t train range {} \t test range {} \n'
+                  .format(learning_rate_p, epoch, patience, train_range, test_range))
+        log.write('p loss before {} after {} \n'.format(np.sum(pre_loss), np.sum(after_loss)))
+        log.write('predict error before mean std: 1 {:.3e} {:.3e}, 2 {:.3e} {:.3e}, 3 {:.3e} {:.3e}, 4 {:.3e} {:.3e},'
+                  ' 5 {:.3e} {:.3e}\n'.format(np.mean(err_bt[:, 0]), np.std(err_bt[:, 0]),
+                                              np.mean(err_bt[:, 1]), np.std(err_bt[:, 1]),
+                                              np.mean(err_bt[:, 2]), np.std(err_bt[:, 2]),
+                                              np.mean(err_bt[:, 3]), np.std(err_bt[:, 3]),
+                                              np.mean(err_bt[:, 4]), np.std(err_bt[:, 4])))
+        log.write('predict error after mean std: 1 {:.3e} {:.3e}, 2 {:.3e} {:.3e}, 3 {:.3e} {:.3e}, 4 {:.3e} {:.3e},'
+                  ' 5 {:.3e} {:.3e}\n'.format(np.mean(err_at[:, 0]), np.std(err_at[:, 0]),
+                                              np.mean(err_at[:, 1]), np.std(err_at[:, 1]),
+                                              np.mean(err_at[:, 2]), np.std(err_at[:, 2]),
+                                              np.mean(err_at[:, 3]), np.std(err_at[:, 3]),
+                                              np.mean(err_at[:, 4]), np.std(err_at[:, 4])))
     # print(sum(pre_loss), sum(after_loss))
 
 

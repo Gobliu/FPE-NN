@@ -16,20 +16,20 @@ plt.rc('font', **font)
 plt.rc('axes', linewidth=2)
 legend_properties = {'weight': 'bold'}
 
-process = 'Boltz'
+process = 'OU'
 run_id = 1
-run_ = 2
+run_ = 3
 sigma = 0.01
 recur_win_gh = 13
 recur_win_p = 13
 p_patience = 10
-# seed = 19822012
-seed = 821215
+seed = 19822012
+# seed = 821215
 
-# directory = '/home/liuwei/Cluster/{}/id{}_p{}_win{}{}_{}'.format(process, run_id, p_patience, recur_win_gh,
-#                                                                  recur_win_p, run_)
-directory = '/home/liuwei/GitHub/Result/{}/id{}_p{}_win{}{}_{}'.format(process, run_id, p_patience, recur_win_gh,
-                                                                       recur_win_p, run_)
+directory = '/home/liuwei/Cluster/{}/id{}_p{}_win{}{}_{}'.format(process, run_id, p_patience, recur_win_gh,
+                                                                 recur_win_p, run_)
+# directory = '/home/liuwei/GitHub/Result/{}/id{}_p{}_win{}{}_{}'.format(process, run_id, p_patience, recur_win_gh,
+#                                                                        recur_win_p, run_)
 log = open(directory + '/train.log', 'r').readlines()
 # log = open('/home/liuwei/GitHub/Result/ghp/Boltz_id2017_p10_win1313_2.txt', 'r').readlines()
 data = np.load('./Pxt/{}_id{}_{}_sigma{}.npz'.format(process, run_id, seed, sigma))
@@ -74,7 +74,7 @@ for line in log[8:]:
         continue
     line = line.strip().split()
     if pos == 1:
-        # print(line)
+        print(line)
         L1_list.append(float(line[-1]) / (100**2 * recur_win_p))
     elif pos == 2:
         # print(line)
@@ -85,14 +85,14 @@ for line in log[8:]:
         gc_list.append(float(line[-3][:-1])**0.5)
         hc_list.append(float(line[-1][:-1])**0.5)
     elif pos == 6:
-        print(line)
+        # print(line)
         L2_list.append(float(line[-3][:-1]) / (100**2 * recur_win_p))
     elif pos == 7:
         ep_list.append(float(line[6][:-3]))
-    elif pos == 8:
-        line = [float(i) for i in line[-5:]]
-        # print(line)
-        test_list.append(sum(line) / (100**2))
+    # elif pos == 8:
+    #     line = [float(i) for i in line[-5:]]
+    #     print(line)
+        # test_list.append(sum(line) / (100**2))
     else:
         continue
 
@@ -110,10 +110,10 @@ print(L1_list)
 print(L2_list)
 print(metric)
 # p = metric.index(min(metric[:100]))
-# p = 86
-p = len(metric) - 1
+p = 127
+# p = len(metric) - 1
 print(p, len(metric))
-print(L1_list[p], L2_list[p], test_list[p], g_list[p], gc_list[p], h_list[p], hc_list[p], ep_list[p])
+print(L1_list[p], L2_list[p], g_list[p], gc_list[p], h_list[p], hc_list[p], ep_list[p])
 
 # sys.exit()
 x = np.arange(p) + 1
@@ -197,17 +197,17 @@ plt.legend(loc='upper left', bbox_to_anchor=[0.65, 0.92], ncol=1)
 plt.ylabel('$\mathbf{L_{P}}$')
 plt.xlabel('iter',  fontweight='bold')
 
-ax = plt.subplot(2, 3, 3)
-plt.text(-0.1, 1.10, 'C', fontsize=20, transform=ax.transAxes, fontweight='bold', va='top')
-plt.plot(x, test_list[:p], 'k-', linewidth=3, label='$L_{test}$')
-plt.tick_params(direction='in', width=3, length=6)
-# plt.xticks(np.arange(0.00, 1.10, 0.5), fontweight='bold')
-# plt.yticks(fontweight='bold')
-# plt.ylim(-0.2, 2.5)
-# plt.yticks(np.arange(0.00, 2.02, 1), fontweight='bold')
-plt.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
-plt.legend(loc='upper left', bbox_to_anchor=[0.6, 0.92], ncol=1)
-# ax.text(.5, .9, '$\mathbf{L_{test}}$', horizontalalignment='center', transform=ax.transAxes, fontsize=20)
-plt.ylabel('$\mathbf{L_{test}}$')
-plt.xlabel('iter',  fontweight='bold')
+# ax = plt.subplot(2, 3, 3)
+# plt.text(-0.1, 1.10, 'C', fontsize=20, transform=ax.transAxes, fontweight='bold', va='top')
+# plt.plot(x, test_list[:p], 'k-', linewidth=3, label='$L_{test}$')
+# plt.tick_params(direction='in', width=3, length=6)
+# # plt.xticks(np.arange(0.00, 1.10, 0.5), fontweight='bold')
+# # plt.yticks(fontweight='bold')
+# # plt.ylim(-0.2, 2.5)
+# # plt.yticks(np.arange(0.00, 2.02, 1), fontweight='bold')
+# plt.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
+# plt.legend(loc='upper left', bbox_to_anchor=[0.6, 0.92], ncol=1)
+# # ax.text(.5, .9, '$\mathbf{L_{test}}$', horizontalalignment='center', transform=ax.transAxes, fontsize=20)
+# plt.ylabel('$\mathbf{L_{test}}$')
+# plt.xlabel('iter',  fontweight='bold')
 plt.show()
