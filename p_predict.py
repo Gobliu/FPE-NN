@@ -34,7 +34,7 @@ learning_rate_p = 0.1 ** 5
 # patience = config.PATIENCE
 # recur_win_gh = 13
 # recur_win_p = 13
-verb = 2
+verb = 0
 train_range = 5
 test_range = 5
 sf_range = 7
@@ -75,21 +75,26 @@ def padding_by_axis2_smooth(data, size):
 
 
 def main():
-    # op_dir = '/home/liuwei/GitHub/Result/Boltz/test'
-    op_dir = '/home/liuwei/GitHub/Result/OU/test'
+    op_dir = '/home/liuwei/GitHub/Result/Boltz/test'
+    # op_dir = '/home/liuwei/GitHub/Result/OU/test'
+    # op_dir = '/home/liuwei/GitHub/Result/Bessel/test'
     if not os.path.exists(op_dir):
         os.makedirs(op_dir)
 
     # ~~~~~~~~~~~~~~~
-    # run_ = 2
-    # ip_dir = '/home/liuwei/GitHub/Result/Boltz/id{}_p{}_win{}{}_{}'.format(1, 10, 13, 13, run_)
+    run_ = 2
+    ip_dir = '/home/liuwei/GitHub/Result/Boltz/id{}_p{}_win{}{}_{}'.format(1, 10, 13, 13, run_) # !!!!
 
-    run_ = 3
-    ip_dir = '/home/liuwei/Cluster/OU/id{}_p{}_win{}{}_{}'.format(1, 10, 13, 13, run_)
+    # run_ = 3
+    # ip_dir = '/home/liuwei/Cluster/OU/id{}_p{}_win{}{}_{}'.format(1, 10, 13, 13, run_)
 
-    # data = np.load('./Pxt/Boltz_id{}_{}_sigma{}.npz'.format('test', 1221732, 0.01))
-    # data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
-    data = np.load('./Pxt/OU_id{}_{}_sigma{}.npz'.format('test', 19822012, 0.01))
+    with open(op_dir + '/train.log', 'a') as log:
+        log.write('########################')
+        log.write('run_id {} seed {} sigma {} win {}\n'.format(run_, 1221732, 0.01, 13))       # !!!!
+
+    data = np.load('./Pxt/Boltz_id{}_{}_sigma{}.npz'.format('test', 1221732, 0.01))
+    # data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(10, 19822012, 0.018))
+    # data = np.load('./Pxt/OU_id{}_{}_sigma{}.npz'.format('test', 19822012, 0.01))
     x = data['x']
     t = data['t']
     true_pxt = data['true_pxt']
@@ -104,8 +109,8 @@ def main():
 
     n_sample = 20
 
-    for iter_ in range(0, 125, 25):
-    # for iter_ in [0, 125]:
+    # for iter_ in range(0, 124, 20):
+    for iter_ in [124]:
 
         gg = np.load(ip_dir + '/iter{}_gg_ng.npy'.format(iter_))
         hh = np.load(ip_dir + '/iter{}_hh_ng.npy'.format(iter_))
@@ -177,8 +182,12 @@ def main():
                 pred_p_after_train = pred_p_after_train[0, ...].transpose()
 
                 # ~~~~~~~~~~~~~~~~ calculate error
-                err_bt[count, :] = np.sum((pred_p_before_train - test_p_y)**2, axis=1)
-                err_at[count, :] = np.sum((pred_p_after_train - test_p_y) ** 2, axis=1)
+                err_bt[count, :] = (np.sum((pred_p_before_train-test_p_y)**2, axis=1)/np.sum(test_p_y**2, axis=1))**0.5
+                err_at[count, :] = (np.sum((pred_p_after_train-test_p_y)**2, axis=1)/np.sum(test_p_y**2, axis=1))**0.5
+                # print(err_bt[count, :], np.sum(test_p_y**2, axis=1))
+                # print(err_bt[count, :] / np.sum(test_p_y**2, axis=1))
+                # print((err_bt[count, :] / np.sum(test_p_y ** 2, axis=1))**0.5)
+                # print()
                 fix_err = np.sum((train_p_p[:, 0, 0] - test_p_y) ** 2)
                 print(np.sum(err_bt[count]), np.sum(err_at[count]), fix_err)
                 count += 1
@@ -206,6 +215,7 @@ def main():
                 print(np.sum((pred_p_before_train - test_p_y)**2, axis=1))
                 print(np.sum((pred_p_after_train - test_p_y) ** 2, axis=1))
                 print(np.sum((fix_err - test_p_y) ** 2, axis=1))
+                print(count, sample, t_idx)
                 # sys.exit()
 
         print(np.min(err_bt), np.min(err_at))
@@ -226,6 +236,7 @@ def main():
                                               np.mean(err_at[:, 2]), np.std(err_at[:, 2]),
                                               np.mean(err_at[:, 3]), np.std(err_at[:, 3]),
                                               np.mean(err_at[:, 4]), np.std(err_at[:, 4])))
+        log.close()
     # print(sum(pre_loss), sum(after_loss))
 
 

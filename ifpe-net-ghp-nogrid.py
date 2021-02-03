@@ -13,8 +13,8 @@ from NonGridModules.FPENet_NG import FPENet_NG
 from NonGridModules.Loss import Loss
 
 # import OU_config as config
-import B_config as config
-# import Boltz_config as config
+# import B_config as config
+import Boltz_config as config
 
 from GridModules.GaussianSmooth import GaussianSmooth
 
@@ -34,8 +34,8 @@ gh_epoch = config.EPOCH
 p_epoch = 1
 patience = config.PATIENCE
 batch_size = config.BATCH_SIZE
-recur_win_gh = 13
-recur_win_p = 13
+recur_win_gh = 17
+recur_win_p = 17
 verb = 2
 p_epoch_factor = 5
 gh = 'lsq'         # check
@@ -43,8 +43,8 @@ n_iter = 500
 test_range = 0
 sf_range = 7
 t_sro = 7
-x_r = [6, 81]     # Bessel 10
-# x_r = [14, 87]      # Boltz 1
+# x_r = [6, 81]     # Bessel 10
+x_r = [14, 87]      # Boltz 1
 # x_r = [19, 101]     # OU 1
 
 
@@ -84,10 +84,10 @@ def padding_by_axis2_smooth(data, size):
 def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     run_ = 0
     while run_ < 100:
-        # directory = '/home/liuwei/GitHub/Result/Boltz/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
-        #                                                                           recur_win_p, run_)
-        directory = '/home/liuwei/GitHub/Result/Bessel/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
-                                                                                   recur_win_p, run_)
+        directory = '/home/liuwei/GitHub/Result/Boltz/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
+                                                                                  recur_win_p, run_)
+        # directory = '/home/liuwei/GitHub/Result/Bessel/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
+        #                                                                            recur_win_p, run_)
         # directory = '/home/liuwei/GitHub/Result/OU/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
         #                                                                        recur_win_p, run_)
         if os.path.exists(directory):
@@ -97,8 +97,8 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
             os.makedirs(directory)
             break
 
-    # data = np.load('./Pxt/Boltz_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
-    data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
+    data = np.load('./Pxt/Boltz_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
+    # data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
     # data = np.load('./Pxt/OU_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
     x = data['x']
     x_points = x.shape[0]
@@ -132,11 +132,11 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     log.close()
 
     # Boltz
-    # real_g = x - 1
-    # real_h = 0.2 * x**2
+    real_g = x - 1
+    real_h = 0.2 * x**2
     # Bessel
-    real_g = 1/x - 0.2
-    real_h = 0.5 * np.ones(x.shape)
+    # real_g = 1/x - 0.2
+    # real_h = 0.5 * np.ones(x.shape)
     # OU
     # real_g = 2.86 * x
     # real_h = 0.0013 * np.ones(x.shape)
