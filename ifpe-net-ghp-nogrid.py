@@ -12,10 +12,10 @@ from NonGridModules.FPLeastSquare_NG import FPLeastSquare_NG
 from NonGridModules.FPENet_NG import FPENet_NG
 from NonGridModules.Loss import Loss
 
-import OU_config as config
+# import OU_config as config
 # import B_config as config
 # import Boltz_config as config
-# import Tri_config as config
+import Tri_config as config
 
 from GridModules.GaussianSmooth import GaussianSmooth
 
@@ -47,7 +47,8 @@ t_sro = 7
 # x_r = [6, 81]     # Bessel 10
 # x_r = [14, 87]      # Boltz 1
 # x_r = [19, 101]     # OU 1
-x_r = [22, 97]  # OU 2017_19822012_sigma0.16_200
+# x_r = [22, 97]  # OU 2017_19822012_sigma0.16_200
+x_r = [30, 182]
 
 
 def test_steps(x, g, h, data):
@@ -118,12 +119,10 @@ def main(run_id, p_patience, f_type, smooth_gh=0.1, smooth_p=False, sample_range
     # sys.exit()
     t = data['t']
     print(t.shape)
-    # print(t[:10])
 
     true_pxt = data['true_pxt'][:sample_range]
     noisy_pxt = data['noisy_pxt'][:sample_range]
     print(true_pxt.shape)
-    # sys.exit()
     true_pxt[true_pxt < 0] = 0
     noisy_pxt[noisy_pxt < 0] = 0
 
@@ -153,8 +152,8 @@ def main(run_id, p_patience, f_type, smooth_gh=0.1, smooth_p=False, sample_range
         real_g = 2.86 * x
         real_h = 0.0013 * np.ones(x.shape)
     elif f_type == 'Tri':
-        real_g = - np.sin(np.pi * x**2) + x
-        real_h = 0.01 * np.cos(np.pi / (x + 1)) * x**2
+        real_g = - 0.4 * np.cos(0.2 * x) - 0.002 * x
+        real_h = 4.5 * np.ones(x.shape)
 
     if smooth_p:
         update_pxt = np.copy(smooth_pxt)
@@ -194,6 +193,7 @@ def main(run_id, p_patience, f_type, smooth_gh=0.1, smooth_p=False, sample_range
     # plt.plot(x, t_lsq_h, 'b+')
     # plt.plot(x, real_h, 'k')
     # plt.show()
+    # sys.exit()
 
     if gh == 'real':
         gg_v, hh_v = real_g, real_h
@@ -349,4 +349,4 @@ def main(run_id, p_patience, f_type, smooth_gh=0.1, smooth_p=False, sample_range
 
 
 if __name__ == '__main__':
-    main(run_id=config.RUN_ID, p_patience=10, f_type='OU', smooth_gh=0.1, smooth_p=True, sample_range=200)
+    main(run_id=config.RUN_ID, p_patience=10, f_type='Tri', smooth_gh=0.1, smooth_p=True, sample_range=100)

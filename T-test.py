@@ -3,9 +3,10 @@ import numpy as np
 from scipy import stats
 
 
-data = np.load('./Pxt/Boltz_id{}_{}_sigma{}_200.npz'.format(1, 821215, 0.01))
+# data = np.load('./Pxt/Boltz_id{}_{}_sigma{}_200.npz'.format(1, 821215, 0.01))
 # data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(12, 19822012, 0.01))
 # data = np.load('./Pxt/OU_id{}_{}_sigma{}_200.npz'.format(2017, 19822012, 0.16))
+data = np.load('./Pxt/Tri_id{}_{}_sigma{}.npz'.format(1, 19822012, 0.01))
 x = data['x']
 true_pxt = data['true_pxt']
 noisy_pxt = data['noisy_pxt']
