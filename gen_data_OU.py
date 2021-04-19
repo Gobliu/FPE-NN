@@ -82,7 +82,8 @@ def ou_main_run():
         print('Generating sample {}'.format(i))
         mu_var, t_one_sample = create_ou(t_points * t_factor, t_gap / t_factor)
         p = histogram_ou(x, mu_var)
-        pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor)) + idx_noise[i]        # odd id
+        # pxt_idx = np.asarray(range(0, t_points*t_factor, t_factor)) + idx_noise[i]        # odd id
+        pxt_idx = np.asarray(range(0, t_points * t_factor, t_factor))  # even id
         pxt_idx[pxt_idx < 0] = 0
         pxt_idx.sort()
         print('max dis:', np.max(abs(pxt_idx[1:] - pxt_idx[:-1])))
@@ -97,8 +98,8 @@ def ou_main_run():
         print(np.sum(true_pxt[i, -1, :]))
 
     # addition noise
-    # noisy_pxt = true_pxt + sigma * noise        # 2015+
-    noisy_pxt = true_pxt + sigma * noise * true_pxt
+    noisy_pxt = true_pxt + sigma * noise        # 2015+
+    # noisy_pxt = true_pxt + sigma * noise * true_pxt
     noisy_pxt[noisy_pxt < 0] = 0
 
     for i in range(n_sample):
@@ -118,7 +119,7 @@ def ou_main_run():
     print(np.sum(true_pxt[:, :, :110]**2))
     print(np.sum(error**2)/np.sum(true_pxt[:, :, :110]**2))
     print((np.sum(error ** 2) / np.sum(true_pxt[:, :, :110] ** 2))**0.5)
-    np.savez_compressed('./Pxt/OU_id{}_{}_sigma{}'.format(run_id, seed, sigma), x=x, t=t,
+    np.savez_compressed('./Pxt/OU_id{}_{}_sigma{}_200'.format(run_id, seed, sigma), x=x, t=t,
                         true_pxt=true_pxt, noisy_pxt=noisy_pxt)
 
 

@@ -12,14 +12,15 @@ from NonGridModules.FPLeastSquare_NG import FPLeastSquare_NG
 from NonGridModules.FPENet_NG import FPENet_NG
 from NonGridModules.Loss import Loss
 
-# import OU_config as config
+import OU_config as config
 # import B_config as config
-import Boltz_config as config
+# import Boltz_config as config
+# import Tri_config as config
 
 from GridModules.GaussianSmooth import GaussianSmooth
 
 np.set_printoptions(suppress=True)
-
+#
 name = 'Noisy'
 seed = config.SEED
 # x_min = config.X_MIN
@@ -34,8 +35,8 @@ gh_epoch = config.EPOCH
 p_epoch = 1
 patience = config.PATIENCE
 batch_size = config.BATCH_SIZE
-recur_win_gh = 17
-recur_win_p = 17
+recur_win_gh = 9
+recur_win_p = 9
 verb = 2
 p_epoch_factor = 5
 gh = 'lsq'         # check
@@ -44,8 +45,9 @@ test_range = 0
 sf_range = 7
 t_sro = 7
 # x_r = [6, 81]     # Bessel 10
-x_r = [14, 87]      # Boltz 1
+# x_r = [14, 87]      # Boltz 1
 # x_r = [19, 101]     # OU 1
+x_r = [22, 97]  # OU 2017_19822012_sigma0.16_200
 
 
 def test_steps(x, g, h, data):
@@ -81,15 +83,28 @@ def padding_by_axis2_smooth(data, size):
     return smooth_data
 
 
-def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
+def main(run_id, p_patience, f_type, smooth_gh=0.1, smooth_p=False, sample_range=None, ):
     run_ = 0
     while run_ < 100:
-        directory = '/home/liuwei/GitHub/Result/Boltz/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
-                                                                                  recur_win_p, run_)
-        # directory = '/home/liuwei/GitHub/Result/Bessel/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
-        #                                                                            recur_win_p, run_)
-        # directory = '/home/liuwei/GitHub/Result/OU/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
-        #                                                                        recur_win_p, run_)
+        if f_type == 'Boltz':
+            directory = '/home/liuwei/GitHub/Result/Boltz/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
+                                                                                      recur_win_p, run_)
+            data = np.load('./Pxt/Boltz_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
+        elif f_type == 'Bessel':
+            directory = '/home/liuwei/GitHub/Result/Bessel/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
+                                                                                       recur_win_p, run_)
+            data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
+        elif f_type == 'OU':
+            directory = '/home/liuwei/GitHub/Result/OU/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
+                                                                                   recur_win_p, run_)
+            data = np.load('./Pxt/OU_id{}_{}_sigma{}_200.npz'.format(run_id, seed, sigma))
+        elif f_type == 'Tri':
+            directory = '/home/liuwei/GitHub/Result/Tri/id{}_p{}_win{}{}_{}'.format(run_id, p_patience, recur_win_gh,
+                                                                                    recur_win_p, run_)
+            data = np.load('./Pxt/Tri_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
+        else:
+            sys.exit('Unknown function type.')
+
         if os.path.exists(directory):
             run_ += 1
             pass
@@ -97,9 +112,6 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
             os.makedirs(directory)
             break
 
-    data = np.load('./Pxt/Boltz_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
-    # data = np.load('./Pxt/Bessel_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
-    # data = np.load('./Pxt/OU_id{}_{}_sigma{}.npz'.format(run_id, seed, sigma))
     x = data['x']
     x_points = x.shape[0]
     print(x)
@@ -108,8 +120,8 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     print(t.shape)
     # print(t[:10])
 
-    true_pxt = data['true_pxt']
-    noisy_pxt = data['noisy_pxt']
+    true_pxt = data['true_pxt'][:sample_range]
+    noisy_pxt = data['noisy_pxt'][:sample_range]
     print(true_pxt.shape)
     # sys.exit()
     true_pxt[true_pxt < 0] = 0
@@ -119,7 +131,7 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     log.write('id{}_{}_sigma{}.npz \n'.format(run_id, seed, sigma))
     log.write('learning rate gh: {} \n'.format(learning_rate_gh))
     log.write('learning rate p: {} \n'.format(learning_rate_p))
-    log.write('t_sro: {} \n'.format(t_sro))
+    log.write('t_sro: {} sample_range: {}\n'.format(t_sro, sample_range))
     log.write('p_epoch_factor {}, sf_range: {} \n'.format(p_epoch_factor, sf_range))
     log.write('Initial error of pxt before smooth: {} ratio {}\n'.
               format(np.sum((noisy_pxt - true_pxt)**2)**0.5,
@@ -131,15 +143,18 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
                      np.sum((smooth_pxt - true_pxt)**2)**0.5/np.sum(true_pxt**2)**0.5))
     log.close()
 
-    # Boltz
-    real_g = x - 1
-    real_h = 0.2 * x**2
-    # Bessel
-    # real_g = 1/x - 0.2
-    # real_h = 0.5 * np.ones(x.shape)
-    # OU
-    # real_g = 2.86 * x
-    # real_h = 0.0013 * np.ones(x.shape)
+    if f_type == 'Boltz':
+        real_g = x - 1
+        real_h = 0.2 * x**2
+    elif f_type == 'Bessel':
+        real_g = 1/x - 0.2
+        real_h = 0.5 * np.ones(x.shape)
+    elif f_type == 'OU':
+        real_g = 2.86 * x
+        real_h = 0.0013 * np.ones(x.shape)
+    elif f_type == 'Tri':
+        real_g = - np.sin(np.pi * x**2) + x
+        real_h = 0.01 * np.cos(np.pi / (x + 1)) * x**2
 
     if smooth_p:
         update_pxt = np.copy(smooth_pxt)
@@ -208,15 +223,9 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
     train_gh_x_ng = np.copy(win_x)
     train_gh_y_ng = np.copy(win_y)
     train_gh_t_ng = np.copy(win_t)
-    # print(win_t.shape, win_x.shape, win_y.shape)
-    # print(win_y[0, 0, :])
-    # # print(win_t[1])
-    # # print(win_t[2])
-    # print(win_y[44, 0, :])
-    # # print(win_t[45])
-    # # print(win_t[46])
-    # sys.exit()
-    win_x, win_t, win_y, win_id = PxtData_NG.get_recur_win_center(smooth_data.train_data, smooth_data.train_t, recur_win_p)
+
+    win_x, win_t, win_y, win_id = PxtData_NG.get_recur_win_center(smooth_data.train_data, smooth_data.train_t,
+                                                                  recur_win_p)
     train_p_p_ng = np.copy(win_x)
     train_p_y_ng = np.copy(win_y)
     train_p_t_ng = np.copy(win_t)
@@ -340,4 +349,4 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False):
 
 
 if __name__ == '__main__':
-    main(run_id=config.RUN_ID, p_patience=10, smooth_gh=0.1, smooth_p=True)
+    main(run_id=config.RUN_ID, p_patience=10, f_type='OU', smooth_gh=0.1, smooth_p=True, sample_range=200)

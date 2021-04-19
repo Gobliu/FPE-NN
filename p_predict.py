@@ -137,7 +137,9 @@ def main():
                 train_p_t = t[sample, t_idx-train_range+1: t_idx+1, :] - t[sample, t_idx, :]
 
                 pred_t = t[sample, t_idx+1: t_idx + test_range+1, :] - t[sample, t_idx, :]
-                test_p_y = np.copy(noisy_pxt[sample, t_idx+1: t_idx+test_range+1, :])
+                # test_p_y = np.copy(noisy_pxt[sample, t_idx+1: t_idx+test_range+1, :])
+                # revised 13 April
+                test_p_y = np.copy(true_pxt[sample, t_idx + 1: t_idx + test_range + 1, :])
 
                 # print(train_p_y[-1, 50:60])
                 train_p_y = train_p_y.transpose()
@@ -180,6 +182,24 @@ def main():
                 # ~~~~~~~~~~~~~~~~ prediction after train p
                 pred_p_after_train = p_nn_ng.predict([train_p_x, pred_t])
                 pred_p_after_train = pred_p_after_train[0, ...].transpose()
+                print(pred_p_after_train.shape)
+                print(np.min(pred_p_after_train))
+                print(np.sum(pred_p_after_train, axis=1))
+
+                print(pred_p_after_train.shape)
+                plt.figure()
+                plt.plot(pred_p_after_train[-1], 'r-', label='after train', linewidth=1)
+
+                plt.plot(test_p_y[-1], 'k-', label='true', linewidth=1)
+                # plt.plot(test_p_y[0], 'g-', label='trained_p 0', linewidth=1)
+                # plt.plot(one_pred[sample, :, 2], 'r-', label='pred', linewidth=1)
+                plt.plot(pred_p_before_train[-1], 'b-', label='before train', linewidth=1)
+                # plt.plot(P[2, 44, :], 'r-', label='trained', linewidth=1)
+                # plt.plot(pre_P[1, -1, :], 'b-', label='p_initial', linewidth=1)
+                plt.legend()
+                # plt.title('iter {}'.format(i))
+                plt.show()
+                sys.exit()
 
                 # ~~~~~~~~~~~~~~~~ calculate error
                 err_bt[count, :] = (np.sum((pred_p_before_train-test_p_y)**2, axis=1)/np.sum(test_p_y**2, axis=1))**0.5
@@ -198,19 +218,7 @@ def main():
                 # print(np.sum((pred_p_after_train - y_model) ** 2))
                 # print(np.max(y_model), np.max(pred_p_after_train))
 
-                # print(pred_p_after_train.shape)
-                # plt.figure()
-                # plt.plot(pred_p_after_train[-1], 'k-', label='after train', linewidth=1)
-                #
-                # plt.plot(test_p_y[-1], 'r', label='trained_p -1', linewidth=1)
-                # plt.plot(test_p_y[0], 'g-', label='trained_p 0', linewidth=1)
-                # # plt.plot(one_pred[sample, :, 2], 'r-', label='pred', linewidth=1)
-                # plt.plot(pred_p_before_train[-1], 'b-', label='input', linewidth=1)
-                # # plt.plot(P[2, 44, :], 'r-', label='trained', linewidth=1)
-                # # plt.plot(pre_P[1, -1, :], 'b-', label='p_initial', linewidth=1)
-                # plt.legend()
-                # # plt.title('iter {}'.format(i))
-                # plt.show()
+
 
                 print(np.sum((pred_p_before_train - test_p_y)**2, axis=1))
                 print(np.sum((pred_p_after_train - test_p_y) ** 2, axis=1))

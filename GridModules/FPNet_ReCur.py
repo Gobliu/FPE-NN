@@ -38,6 +38,7 @@ class FPNetReCur:
         answer = layers.Add()([dup_x, delta_x])
         # =============================
         # answer = [dup_x, delta_x, answer1]
+        # answer = layers.Softmax(answer, axis=-1)        # to ensure integral is 1
         # =============================
         network = models.Model(x, answer)
         network.compile(optimizer=optimizers.Adam(lr=learning_rate), loss=loss)  # mse: mean squared error
@@ -84,6 +85,94 @@ class FPNetReCur:
         answer = layers.Add()([dup_p, delta_p])
         # =============================
         # answer = [delta_p, answer1]
+        # answer = layers.Softmax(answer, axis=-1)  # to ensure integral is 1
+        # =============================
+        network = models.Model(x, answer)
+        network.compile(optimizer=optimizers.Adam(lr=learning_rate), loss=loss)  # mse: mean squared error
+        print(network.summary())
+        network.get_layer(name=self.name + 'dx').set_weights([self.dx])  # expecting a list of arrays
+        network.get_layer(name=self.name + 'dxx').set_weights([self.dxx])  # expecting a list of arrays
+        network.get_layer(name=self.name + 'dt').set_weights([self.dt])
+        network.get_layer(name=self.name + 'dup_x').set_weights([self.dup_x])
+        network.get_layer(name=self.name + 'g').set_weights([fix_g])
+        network.get_layer(name=self.name + 'h').set_weights([fix_h])
+        return network
+
+    # def recur_train_p_small_step(self, learning_rate, loss, fix_g, fix_h, small_step=1):
+    #     small_t_gap = self.t_gap / small_step
+    #     small_dt = small_t_gap * np.ones((1, 1, 1))
+    #     one = np.ones((1, 1, 1))
+    #
+    #     # backward cell
+    #     p = models.Input(shape=(self.x_points, 1))
+    #     gp = layers.LocallyConnected1D(1, 1, use_bias=False, name=self.name + 'g', trainable=False)(p)
+    #     gp = layers.Flatten()(gp)
+    #     gp = layers.Dense(self.x_points, use_bias=False, name=self.name + 'dx', trainable=False)(gp)
+    #     hp = layers.LocallyConnected1D(1, 1, use_bias=False, name=self.name + 'h', trainable=False)(p)
+    #     hp = layers.Flatten()(hp)
+    #     hp = layers.Dense(self.x_points, use_bias=False, name=self.name + 'dxx', trainable=False)(hp)
+    #     dt_p = layers.Add()([gp, hp])
+    #     dt_p = layers.Reshape((-1, 1))(dt_p)
+    #     dt_p = layers.Conv1D(1, 1, use_bias=False, name=self.name + 'b_dt', trainable=False)(dt_p)
+    #     next_p = layers.Add()([dt_p, p])
+    #     next_p = layers.Conv1D(1, 1, use_bias=False, name=self.name + 'one', trainable=False, activation='relu')(next_p)
+    #     b_cell = models.Model(p, next_p)
+    #     # print('B Cell Summary')
+    #     # print(b_cell.summary())
+    #     b_cell.get_layer(name=self.name + 'dx').set_weights([self.dx])  # expecting a list of arrays
+    #     b_cell.get_layer(name=self.name + 'dxx').set_weights([self.dxx])
+    #     b_cell.get_layer(name=self.name + 'b_dt').set_weights([-small_dt])  # negative value
+    #     b_cell.get_layer(name=self.name + 'g').set_weights([fix_g])
+    #     b_cell.get_layer(name=self.name + 'h').set_weights([fix_h])
+    #     b_cell.get_layer(name=self.name + 'one').set_weights([one])
+    #
+    #     # forward cell
+    #     p = models.Input(shape=(self.x_points, 1))
+    #     gp = layers.LocallyConnected1D(1, 1, use_bias=False, name=self.name + 'g', trainable=False)(p)
+    #     gp = layers.Flatten()(gp)
+    #     gp = layers.Dense(self.x_points, use_bias=False, name=self.name + 'dx', trainable=False)(gp)
+    #     hp = layers.LocallyConnected1D(1, 1, use_bias=False, name=self.name + 'h', trainable=False)(p)
+    #     hp = layers.Flatten()(hp)
+    #     hp = layers.Dense(self.x_points, use_bias=False, name=self.name + 'dxx', trainable=False)(hp)
+    #     dt_p = layers.Add()([gp, hp])
+    #     dt_p = layers.Reshape((-1, 1))(dt_p)
+    #     dt_p = layers.Conv1D(1, 1, use_bias=False, name=self.name + 'f_dt', trainable=False)(dt_p)
+    #     next_p = layers.Add()([dt_p, p])
+    #     next_p = layers.Conv1D(1, 1, use_bias=False, name=self.name + 'one', trainable=False, activation='relu')(next_p)
+    #     f_cell = models.Model(p, next_p)
+    #     # print('F Cell Summary')
+    #     # print(f_cell.summary())
+    #     f_cell.get_layer(name=self.name + 'dx').set_weights([self.dx])  # expecting a list of arrays
+    #     f_cell.get_layer(name=self.name + 'dxx').set_weights([self.dxx])
+    #     f_cell.get_layer(name=self.name + 'f_dt').set_weights([small_dt])  # negative value
+    #     f_cell.get_layer(name=self.name + 'g').set_weights([fix_g])
+    #     f_cell.get_layer(name=self.name + 'h').set_weights([fix_h])
+    #     f_cell.get_layer(name=self.name + 'one').set_weights([one])
+    #
+    #     # RNN
+    #     x = models.Input(shape=(self.x_points, 1))
+    #     p_center = layers.LocallyConnected1D(1, 1, use_bias=False, name=self.name + 'p')(x)
+    #     out_p = p_center
+    #     for big_step in range(self.recur_center):
+    #         for step_ in range(small_step):
+    #             if step_ == 0 and big_step == 0:
+    #                 b_next_p = b_cell(p_center)
+    #             else:
+    #                 b_next_p = b_cell(b_cur_p)
+    #             b_cur_p = b_next_p
+    #         out_p = layers.concatenate([b_next_p, out_p])
+    #
+    #     for big_step in range(self.recur_center):
+    #         for step_ in range(small_step):
+    #             if step_ == 0 and big_step == 0:
+    #                 f_next_p = f_cell(p_center)
+    #             else:
+    #                 f_next_p = f_cell(f_cur_p)
+    #             f_cur_p = f_next_p
+    #         out_p = layers.concatenate([out_p, f_next_p])
+    #     rnn_model = models.Model(x, out_p)
+    #     rnn_model.compile(optimizer=optimizers.Adam(lr=learning_rate), loss=loss)  # mse: mean squared error
+    #     # print(rnn_model.summary())
         # =============================
         network = models.Model(x, answer)
         network.compile(optimizer=optimizers.Adam(lr=learning_rate), loss=loss)  # mse: mean squared error

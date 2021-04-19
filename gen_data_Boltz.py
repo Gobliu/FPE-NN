@@ -142,22 +142,24 @@ def ou_main_run():
     print(np.min(f_noisy_pxt))
     f_noisy_pxt[f_noisy_pxt < 0] = 0
 
-    # for i in range(n_sample):
-    #     plt.figure(figsize=[12, 8])
-    #     plt.plot(x[:], true_pxt[i, 1, :], 'k-', label='p_initial', linewidth=4)
-    #     plt.plot(x[:], true_pxt[i, -1, :], 'r-', label='p_final', linewidth=4)
-    #     # plt.plot(x, f_true_pxt[i, 1, :], 'y-', label='f_p_initial', linewidth=4)
-    #     plt.plot(x[:], f_true_pxt[i, -1, :], 'g-', label='f_p_final', linewidth=4)
-    #     # plt.plot(x, f_noisy_pxt[i, 1, :], 'r.', label='p_initial')
-    #     # plt.plot(x, f_noisy_pxt[i, -1, :], 'b^', label='p_final')
-    #     plt.legend(fontsize=30)
-    #     plt.ion()
-    #     plt.pause(0.6)
-    #     plt.close()
-    #     # sys.exit()
-    #     # plt.show()
-
     range_ = 100
+
+    for i in range(n_sample):
+        plt.figure(figsize=[12, 8])
+        plt.plot(x[:range_], true_pxt[i, 1, :range_], 'k-', label='p_initial', linewidth=4)
+        plt.plot(x[:range_], true_pxt[i, -1, :range_], 'r-', label='p_final', linewidth=4)
+        # plt.plot(x, f_true_pxt[i, 1, :], 'y-', label='f_p_initial', linewidth=4)
+        plt.plot(x[:range_], f_true_pxt[i, -1, :range_], 'g-', label='f_p_final', linewidth=4)
+        # plt.plot(x, f_noisy_pxt[i, 1, :], 'r.', label='p_initial')
+        # plt.plot(x, f_noisy_pxt[i, -1, :], 'b^', label='p_final')
+        plt.legend(fontsize=30)
+        plt.ion()
+        plt.pause(0.6)
+        plt.close()
+        # sys.exit()
+        # plt.show()
+
+
     print(np.min(f_noisy_pxt[:, :, :range_]))
     # print(f_true_pxt[0, 0, :])
     error = f_true_pxt[:, :, :range_] - f_noisy_pxt[:, :, :range_]
@@ -165,7 +167,7 @@ def ou_main_run():
     print(np.sum(f_true_pxt[:, :, :range_]**2))
     print(np.sum(error**2)/np.sum(f_true_pxt[:, :, :range_]**2))
     print((np.sum(error ** 2) / np.sum(f_true_pxt[:, :, :range_] ** 2))**0.5)
-    np.savez_compressed('./Pxt/Boltz_id{}_{}_sigma{}'.format(run_id, seed, sigma), x=x[:range_], t=t,
+    np.savez_compressed('./Pxt/Boltz_id{}_{}_sigma{}_200'.format(run_id, seed, sigma), x=x[:range_], t=t,
                         true_pxt=f_true_pxt[:, :, :range_], noisy_pxt=f_noisy_pxt[:, :, :range_])
 
 

@@ -171,7 +171,7 @@ def ou_main_run():
     print(np.sum(f_true_pxt[:, :, range_[0]:range_[1]]**2))
     print(np.sum(error**2)/np.sum(f_true_pxt[:, :, range_[0]:range_[1]]**2))
     print((np.sum(error ** 2) / np.sum(f_true_pxt[:, :, range_[0]:range_[1]] ** 2))**0.5)
-    np.savez_compressed('./Pxt/Bessel_id{}_{}_sigma{}'.format(run_id, seed, sigma), x=x[range_[0]:range_[1]], t=t,
+    np.savez_compressed('./Pxt/Bessel_id{}_{}_sigma{}_200'.format(run_id, seed, sigma), x=x[range_[0]:range_[1]], t=t,
                         true_pxt=f_true_pxt[:, :, range_[0]:range_[1]],
                         noisy_pxt=f_noisy_pxt[:, :, range_[0]:range_[1]])
     print(x[range_[0]:range_[1]])

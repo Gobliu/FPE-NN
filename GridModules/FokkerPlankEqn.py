@@ -34,6 +34,11 @@ class FokkerPlankForward:
                 y4 = pre_p + k3 * t_gap * direction
                 k4 = np.matmul(g * y4, dx) + np.matmul(h * y4, dxx)
                 pt[t] = pre_p + (k1 + 2 * k2 + 2 * k3 + k4) * t_gap / 6 * direction
+
+                # print('k1', k1)
+                # print('k2', k2)
+                # print('k3', k3)
+                # print('k4', k4)
             else:
                 sys.exit('The order of Runge-Kutta method is out of scope.')
             p_dt[t-1] = k1

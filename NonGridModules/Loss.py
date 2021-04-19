@@ -13,6 +13,10 @@ class Loss:
         cost = K.sum(K.square(y_true - y_pred))
         return cost
 
+    @staticmethod
+    def sum_square_2in1(y_true, y_pred):
+        cost = K.sum(K.square(y_true[:, :, :, 0] - y_pred)) + K.sum(K.square(y_true[:, :, :, 1] - y_pred))
+        return cost
     # @staticmethod
     # def KL_div(y_true, y_pred):
     #     y_true = tf.clip_by_value(y_true, 1e-15, 1.0)

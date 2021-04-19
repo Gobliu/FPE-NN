@@ -1,0 +1,18 @@
+# for Tri
+
+RUN_ID = 1
+
+X_POINTS = 300
+X_MIN = -15
+X_MAX = 15
+T_GAP = 0.1
+
+SEED = 19822012
+T_POINTS = 50
+N_SAMPLE = 200
+LEARNING_RATE_GH = 2*0.1**6    # for small OU, can try 3 or 4
+LEARNING_RATE_P = 0.1**3
+EPOCH = 200000
+BATCH_SIZE = 64
+PATIENCE = 20
+SIGMA = 0.01
