@@ -283,7 +283,7 @@ def main(run_id, p_patience, smooth_gh=0.1, smooth_p=False, sample_range=None):
             pgh_3in1.fit([train_p_x, train_p_t_ng[sample:sample + 1, ...]],
                          np.stack([train_p_y_ng[sample:sample + 1, ...],
                                    train_gh_y_ng[sample:sample + 1, ...]], axis=-1),
-                         epochs=100, verbose=verb, callbacks=[es])
+                         epochs=10, verbose=verb, callbacks=[es])
 
             update_data_ng.train_data[sample_id, t_id] = pgh_3in1.get_layer(name=name + 'p').get_weights()[0][:, 0, 0]
             p_loss = pgh_3in1.evaluate([train_p_x, train_p_t_ng[sample:sample + 1, ...]],

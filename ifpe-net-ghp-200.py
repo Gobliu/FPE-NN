@@ -153,8 +153,10 @@ def main(run_id, p_patience, f_type, smooth_gh=0.1, smooth_p=False, sample_range
         real_g = 2.86 * x
         real_h = 0.0013 * np.ones(x.shape)
     elif f_type == 'Tri':
-        real_g = - 0.4 * np.cos(0.2 * x) - 0.002 * x
-        real_h = 4.5 * np.ones(x.shape)
+        # real_g = - 0.4 * np.cos(0.2 * x) - 0.002 * x
+        # real_h = 4.5 * np.ones(x.shape)
+        real_g = 0.08 * np.sin(0.2 * x) - 0.002
+        real_h = 0.045 * np.ones(x.shape)
 
     if smooth_p:
         update_pxt = np.copy(smooth_pxt)

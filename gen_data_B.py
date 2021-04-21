@@ -151,18 +151,18 @@ def ou_main_run():
     for i in range(n_sample):
         plt.figure(figsize=[12, 8])
         # plt.plot(x[:], true_pxt[i, 1, :], 'k-', label='p_initial', linewidth=4)
-        # plt.plot(x[:], true_pxt[i, -1, :], 'r-', label='p_final', linewidth=4)
-        # plt.plot(x[:], f_true_pxt[i, -1, :], 'g-', label='f_p_final', linewidth=4)
-        plt.plot(x[range_[0]:range_[1]], true_pxt[i, 1, range_[0]:range_[1]], 'k-', label='p_initial', linewidth=4)
-        plt.plot(x[range_[0]:range_[1]], true_pxt[i, -1, range_[0]:range_[1]], 'r-', label='p_final', linewidth=4)
-        plt.plot(x[range_[0]:range_[1]], f_true_pxt[i, -1, range_[0]:range_[1]], 'g-', label='f_p_final', linewidth=4)
+        plt.plot(x[:], f_true_pxt[i, -1, :], 'k-', label='p_clean', linewidth=2)
+        plt.plot(x[:], f_noisy_pxt[i, -1, :], 'r+', label='f_p_noisy', linewidth=2)
+        # plt.plot(x[range_[0]:range_[1]], true_pxt[i, 1, range_[0]:range_[1]], 'k-', label='p_initial', linewidth=4)
+        # plt.plot(x[range_[0]:range_[1]], true_pxt[i, -1, range_[0]:range_[1]], 'r-', label='p_final', linewidth=4)
+        # plt.plot(x[range_[0]:range_[1]], f_true_pxt[i, -1, range_[0]:range_[1]], 'g-', label='f_p_final', linewidth=4)
 
         plt.legend(fontsize=30)
-        plt.ion()
-        plt.pause(0.6)
-        plt.close()
+        # plt.ion()
+        # plt.pause(0.6)
+        # plt.close()
         # sys.exit()
-        # plt.show()
+        plt.show()
 
     print(np.min(f_noisy_pxt[:, :, range_[0]:range_[1]]))
     # print(f_true_pxt[0, 0, :])
@@ -171,9 +171,9 @@ def ou_main_run():
     print(np.sum(f_true_pxt[:, :, range_[0]:range_[1]]**2))
     print(np.sum(error**2)/np.sum(f_true_pxt[:, :, range_[0]:range_[1]]**2))
     print((np.sum(error ** 2) / np.sum(f_true_pxt[:, :, range_[0]:range_[1]] ** 2))**0.5)
-    np.savez_compressed('./Pxt/Bessel_id{}_{}_sigma{}_200'.format(run_id, seed, sigma), x=x[range_[0]:range_[1]], t=t,
-                        true_pxt=f_true_pxt[:, :, range_[0]:range_[1]],
-                        noisy_pxt=f_noisy_pxt[:, :, range_[0]:range_[1]])
+    # np.savez_compressed('./Pxt/Bessel_id{}_{}_sigma{}_200'.format(run_id, seed, sigma), x=x[range_[0]:range_[1]], t=t,
+    #                     true_pxt=f_true_pxt[:, :, range_[0]:range_[1]],
+    #                     noisy_pxt=f_noisy_pxt[:, :, range_[0]:range_[1]])
     print(x[range_[0]:range_[1]])
 
 

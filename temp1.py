@@ -20,7 +20,8 @@ h31 = np.load('/home/liuwei/Cluster/OU/id1_p10_win1313_2/iter46_hh_ng.npy')
 
 x1 = np.linspace(-0.01, 0.1, num=110, endpoint=False)
 OU_real_g = 2.86 * x1
-OU_real_h = 0.0013 * np.ones(x1.shape)
+# OU_real_h = 0.0013 * np.ones(x1.shape)
+OU_real_h = 0.045 * np.ones(x1.shape)
 
 # Bessel
 g12 = np.load('/home/liuwei/Cluster/Bessel/id10_p10_win1313_2/iter73_gg_ng.npy')

@@ -78,8 +78,10 @@ def histogram_ou(x, mu_var):
 def ou_main_run():
     x = np.linspace(x_min, x_max, num=x_points, endpoint=False)
     # ========================== Tri
-    g = - 0.4 * np.cos(0.2 * x) - 0.002 * x
-    h = 4.5 * np.ones(x.shape)
+    # g = - 0.4 * np.cos(0.2 * x) - 0.002 * x
+    g = 0.08 * np.sin(0.2 * x) - 0.002
+    # h = 4.5 * np.ones(x.shape)
+    h = 0.045 * np.ones(x.shape)
 
     # print(x, g, h)
 

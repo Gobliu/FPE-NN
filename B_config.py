@@ -3,8 +3,9 @@
 
 # RUN_ID = 2013   # 2012
 # RUN_ID = 12         # sigma 0.05        multiple
-RUN_ID = 12
+# RUN_ID = 12
 # RUN_ID = 2020       # change x range
+RUN_ID = 'test'
 T_GAP = 0.0001
 
 # X_POINTS = 100
@@ -15,7 +16,7 @@ X_MIN = 0.01
 X_MAX = 2.0
 
 T_POINTS = 50
-N_SAMPLE = 200
+N_SAMPLE = 20
 
 SEED = 19822012
 

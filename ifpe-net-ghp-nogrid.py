@@ -152,8 +152,10 @@ def main(run_id, p_patience, f_type, smooth_gh=0.1, smooth_p=False, sample_range
         real_g = 2.86 * x
         real_h = 0.0013 * np.ones(x.shape)
     elif f_type == 'Tri':
-        real_g = - 0.4 * np.cos(0.2 * x) - 0.002 * x
-        real_h = 4.5 * np.ones(x.shape)
+        # real_g = - 0.4 * np.cos(0.2 * x) - 0.002 * x
+        # real_h = 4.5 * np.ones(x.shape)
+        real_g = 0.08 * np.sin(0.2 * x) - 0.002
+        real_h = 0.045 * np.ones(x.shape)
 
     if smooth_p:
         update_pxt = np.copy(smooth_pxt)
@@ -180,19 +182,19 @@ def main(run_id, p_patience, f_type, smooth_gh=0.1, smooth_p=False, sample_range
     else:
         lsq_g, lsq_h, dt_, _ = lsq.lsq_wo_t(pxt=noisy_data.train_data, t=noisy_data.train_t)
 
-    # t_lsq_g, t_lsq_h, dt, p_mat = lsq.lsq_wo_t(pxt=true_data.train_data, t=true_data.train_t)
+    t_lsq_g, t_lsq_h, dt, p_mat = lsq.lsq_wo_t(pxt=true_data.train_data, t=true_data.train_t)
 
-    # plt.figure()
-    # plt.plot(x, lsq_g, 'r*')
-    # plt.plot(x, t_lsq_g, 'b+')
-    # plt.plot(x, real_g, 'k')
-    # plt.show()
-    #
-    # plt.figure()
-    # plt.plot(x, lsq_h, 'r*')
-    # plt.plot(x, t_lsq_h, 'b+')
-    # plt.plot(x, real_h, 'k')
-    # plt.show()
+    plt.figure()
+    plt.plot(x, lsq_g, 'r*')
+    plt.plot(x, t_lsq_g, 'b+')
+    plt.plot(x, real_g, 'k')
+    plt.show()
+
+    plt.figure()
+    plt.plot(x, lsq_h, 'r*')
+    plt.plot(x, t_lsq_h, 'b+')
+    plt.plot(x, real_h, 'k')
+    plt.show()
     # sys.exit()
 
     if gh == 'real':
@@ -241,7 +243,7 @@ def main(run_id, p_patience, f_type, smooth_gh=0.1, smooth_p=False, sample_range
         log.write('Iter: {} \n'.format(iter_))
 
         # smooth
-        gg_v_ng[:, 0, 0] = GaussianSmooth.gaussian1d(gg_v_ng[:, 0, 0], sigma=1 / (smooth_gh * iter_+1))
+        # gg_v_ng[:, 0, 0] = GaussianSmooth.gaussian1d(gg_v_ng[:, 0, 0], sigma=1 / (smooth_gh * iter_+1))
         hh_v_ng[:, 0, 0] = GaussianSmooth.gaussian1d(hh_v_ng[:, 0, 0], sigma=1 / (smooth_gh * iter_+1))
         # gg_v_ng[:, 0, 0] = signal.savgol_filter(gg_v_ng[:, 0, 0], sf_range, 2)
         # hh_v_ng[:, 0, 0] = signal.savgol_filter(hh_v_ng[:, 0, 0], sf_range, 2)
