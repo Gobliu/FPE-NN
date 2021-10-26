@@ -132,23 +132,23 @@ def ou_main_run():
     range_ = [40, -40]
     # range_ = [None, None]
 
-    for i in range(n_sample):
-        plt.figure(figsize=[12, 8])
-        # plt.plot(x[:], true_pxt[i, 1, :], 'k-', label='p_initial', linewidth=4)
-        # plt.plot(x[:], true_pxt[i, -1, :], 'r-', label='p_final', linewidth=4)
-        # plt.plot(x[:], f_true_pxt[i, -1, :], 'g-', label='f_p_final', linewidth=4)
-        plt.plot(x[range_[0]:range_[1]], f_true_pxt[i, 0, range_[0]:range_[1]], 'k-', label='p_initial', linewidth=4)
-        plt.plot(x[range_[0]:range_[1]], true_pxt[i, -1, range_[0]:range_[1]], 'r-', label='p_final', linewidth=4)
-        plt.plot(x[range_[0]:range_[1]], f_true_pxt[i, -1, range_[0]:range_[1]], 'g+', label='f_p_final', linewidth=4)
-
-        print(np.sum(f_true_pxt[i, -1, range_[0]:range_[1]]))
-
-        plt.legend(fontsize=30)
-        plt.ion()
-        plt.pause(1)
-        plt.close()
-        # sys.exit()
-        # plt.show()
+    # for i in range(n_sample):
+    #     plt.figure(figsize=[12, 8])
+    #     # plt.plot(x[:], true_pxt[i, 1, :], 'k-', label='p_initial', linewidth=4)
+    #     # plt.plot(x[:], true_pxt[i, -1, :], 'r-', label='p_final', linewidth=4)
+    #     # plt.plot(x[:], f_true_pxt[i, -1, :], 'g-', label='f_p_final', linewidth=4)
+    #     plt.plot(x[range_[0]:range_[1]], f_true_pxt[i, 0, range_[0]:range_[1]], 'k-', label='p_initial', linewidth=4)
+    #     plt.plot(x[range_[0]:range_[1]], true_pxt[i, -1, range_[0]:range_[1]], 'r-', label='p_final', linewidth=4)
+    #     plt.plot(x[range_[0]:range_[1]], f_true_pxt[i, -1, range_[0]:range_[1]], 'g+', label='f_p_final', linewidth=4)
+    #
+    #     print(np.sum(f_true_pxt[i, -1, range_[0]:range_[1]]))
+    #
+    #     plt.legend(fontsize=30)
+    #     plt.ion()
+    #     plt.pause(1)
+    #     plt.close()
+    #     # sys.exit()
+    #     # plt.show()
 
     print(np.min(f_noisy_pxt[:, :, range_[0]:range_[1]]))
     # print(f_true_pxt[0, 0, :])

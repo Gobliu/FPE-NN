@@ -5,6 +5,7 @@ import numpy as np
 from scipy import signal
 from keras import callbacks, backend, losses
 import matplotlib.pyplot as plt
+from textwrap import wrap
 
 from NonGridModules.PDM_NG import PDM_NG
 from NonGridModules.PxtData_NG import PxtData_NG
@@ -42,6 +43,14 @@ t_sro = 7
 epoch = 10000
 patience = 10
 
+
+font = {'size': 18}
+
+plt.rc('font', **font)
+
+plt.rc('axes', linewidth=2)
+
+legend_properties = {'weight': 'bold'}
 
 # def test_one_step(x, g, h, p, t):
 #     dx = PDM_NG.pde_1d_mat(x, t_sro, sro=1)
@@ -187,19 +196,33 @@ def main():
                 print(np.sum(pred_p_after_train, axis=1))
 
                 print(pred_p_after_train.shape)
-                plt.figure()
-                plt.plot(pred_p_after_train[-1], 'r-', label='after train', linewidth=1)
+                # plt.figure()
+                # plt.plot(pred_p_after_train[-1], 'r-', label='after train', linewidth=1)
+                #
+                # plt.plot(test_p_y[-1], 'k-', label='true', linewidth=1)
+                # # plt.plot(test_p_y[0], 'g-', label='trained_p 0', linewidth=1)
+                # # plt.plot(one_pred[sample, :, 2], 'r-', label='pred', linewidth=1)
+                # plt.plot(pred_p_before_train[-1], 'b-', label='before train', linewidth=1)
+                # # plt.plot(P[2, 44, :], 'r-', label='trained', linewidth=1)
+                # # plt.plot(pre_P[1, -1, :], 'b-', label='p_initial', linewidth=1)
+                # plt.legend()
+                # # plt.title('iter {}'.format(i))
+                # plt.show()
+                # sys.exit()
 
-                plt.plot(test_p_y[-1], 'k-', label='true', linewidth=1)
-                # plt.plot(test_p_y[0], 'g-', label='trained_p 0', linewidth=1)
-                # plt.plot(one_pred[sample, :, 2], 'r-', label='pred', linewidth=1)
-                plt.plot(pred_p_before_train[-1], 'b-', label='before train', linewidth=1)
-                # plt.plot(P[2, 44, :], 'r-', label='trained', linewidth=1)
-                # plt.plot(pre_P[1, -1, :], 'b-', label='p_initial', linewidth=1)
-                plt.legend()
-                # plt.title('iter {}'.format(i))
+                print(np.max(test_p_y[-1]*100), x)
+
+                plt.plot()
+                plt.plot(x, test_p_y[-1]*100, 'k', linewidth=1, label='truth')
+                # plt.plot(x, pred_p_before_train[-1], 'b', linewidth=1, label='Prediction (untrained P)')
+                plt.scatter(x, pred_p_after_train[-1] * 100, c='r', marker='d', s=50, label='Prediction')
+                plt.tick_params(direction='in', width=3, length=6)
+                plt.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
+                plt.legend(loc='upper left', bbox_to_anchor=[0.48, 0.98], ncol=1)
+                plt.ylabel('P', fontweight='bold')
+                plt.xlabel('x', fontweight='bold')
                 plt.show()
-                sys.exit()
+                # sys.exit()
 
                 # ~~~~~~~~~~~~~~~~ calculate error
                 err_bt[count, :] = (np.sum((pred_p_before_train-test_p_y)**2, axis=1)/np.sum(test_p_y**2, axis=1))**0.5

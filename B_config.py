@@ -3,9 +3,9 @@
 
 # RUN_ID = 2013   # 2012
 # RUN_ID = 12         # sigma 0.05        multiple
-# RUN_ID = 12
+RUN_ID = 12
 # RUN_ID = 2020       # change x range
-RUN_ID = 'test'
+# RUN_ID = 'test'
 T_GAP = 0.0001
 
 # X_POINTS = 100

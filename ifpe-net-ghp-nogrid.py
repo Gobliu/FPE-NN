@@ -20,7 +20,12 @@ import Tri_config as config
 from GridModules.GaussianSmooth import GaussianSmooth
 
 np.set_printoptions(suppress=True)
-#
+
+font = {'size': 16}
+plt.rc('font', **font)
+plt.rc('axes', linewidth=2)
+legend_properties = {'weight': 'bold'}
+
 name = 'Noisy'
 seed = config.SEED
 # x_min = config.X_MIN
@@ -35,8 +40,8 @@ gh_epoch = config.EPOCH
 p_epoch = 1
 patience = config.PATIENCE
 batch_size = config.BATCH_SIZE
-recur_win_gh = 9
-recur_win_p = 9
+recur_win_gh = 5
+recur_win_p = 5
 verb = 2
 p_epoch_factor = 5
 gh = 'lsq'         # check
@@ -185,17 +190,43 @@ def main(run_id, p_patience, f_type, smooth_gh=0.1, smooth_p=False, sample_range
 
     t_lsq_g, t_lsq_h, dt, p_mat = lsq.lsq_wo_t(pxt=true_data.train_data, t=true_data.train_t)
 
-    plt.figure()
-    plt.plot(x, lsq_g, 'r*')
-    plt.plot(x, t_lsq_g, 'b+')
-    plt.plot(x, real_g, 'k')
-    plt.show()
-
-    plt.figure()
-    plt.plot(x, lsq_h, 'r*')
-    plt.plot(x, t_lsq_h, 'b+')
-    plt.plot(x, real_h, 'k')
-    plt.show()
+    # plt.figure(figsize=[12, 6])
+    # plt.subplots_adjust(top=0.90, bottom=0.1, left=0.075, right=0.95, wspace=0.25, hspace=0.2)
+    # ax = plt.subplot(1, 2, 1)
+    # plt.text(-0.15, 1.1, 'a', fontsize=20, transform=ax.transAxes, fontweight='bold', va='top')
+    # plt.plot(x, real_g, 'k-', linewidth=3, label='True g')
+    # plt.scatter(x, t_lsq_g, c='b', marker='o', s=50, label='g from clean P')
+    # plt.scatter(x, lsq_g, c='r', marker='^', s=50, label='g from noisy P')
+    # # plt.scatter(b_x, b_lsq_g, c='r', marker='d', s=100, label='LLS')
+    # # plt.axvline(x=x1[19], ls='--', c='blue', linewidth=3)
+    # # plt.axvline(x=x1[101], ls='--', c='blue', linewidth=3)
+    # plt.tick_params(direction='in', width=3, length=6)
+    # plt.xticks(fontweight='bold')
+    # plt.yticks(fontweight='bold')
+    # plt.ylim(-0.2, 0.8)
+    # plt.yticks(fontweight='bold')
+    # plt.legend(loc='upper left', bbox_to_anchor=[0.4, 0.85], ncol=1)
+    # ax.text(.5, .9, 'Heat Flux', horizontalalignment='center', transform=ax.transAxes, fontweight='bold')
+    # plt.ylabel('g', fontweight='bold')
+    # plt.xlabel('x', fontweight='bold')
+    #
+    # ax = plt.subplot(1, 2, 2)
+    # plt.text(-0.15, 1.1, 'b', fontsize=20, transform=ax.transAxes, fontweight='bold', va='top')
+    # plt.plot(x, real_h * 1000, 'k-', linewidth=3, label='True h')
+    # plt.scatter(x, t_lsq_h * 1000, c='b', marker='o', s=50, label='h from clean P')
+    # plt.scatter(x, lsq_h * 1000, c='r', marker='^', s=50, label='h from noisy P')
+    # # plt.axvline(x=x1[19], ls='--', c='blue', linewidth=3)
+    # # plt.axvline(x=x1[101], ls='--', c='blue', linewidth=3)
+    # plt.tick_params(direction='in', width=3, length=6)
+    # plt.xticks(fontweight='bold')
+    # plt.yticks(fontweight='bold')
+    # # plt.ylim(-0.3, 4)
+    # plt.yticks(np.arange(0, 3.1, 1), fontweight='bold')
+    # plt.legend(loc='upper left', bbox_to_anchor=[0.40, 0.85], ncol=1)
+    # ax.text(.5, .9, 'Heat Flux', horizontalalignment='center', transform=ax.transAxes, fontweight='bold')
+    # plt.ylabel('h($\mathbf{10^{-4}}$)', fontweight='bold')
+    # plt.xlabel('x', fontweight='bold')
+    # plt.show()
     # sys.exit()
 
     if gh == 'real':
@@ -312,7 +343,7 @@ def main(run_id, p_patience, f_type, smooth_gh=0.1, smooth_p=False, sample_range
             # y_model_ng = p_nn_ng.predict([train_p_x, train_p_t_ng[sample:sample + 1, ...]])
             # predict_loss += np.sum((y_model_ng - train_p_y_ng[sample:sample + 1, ...]) ** 2)
 
-        # update_data_ng.train_data = padding_by_axis2_smooth(update_data_ng.train_data, 5)
+        update_data_ng.train_data = padding_by_axis2_smooth(update_data_ng.train_data, 5)
 
         win_x, win_t, win_y, _ = PxtData_NG.get_recur_win_center(update_data_ng.train_data, update_data_ng.train_t,
                                                                  recur_win_gh)

@@ -30,7 +30,7 @@ seed = 821215
 #                                                                  recur_win_p, run_)
 # directory = '/home/liuwei/GitHub/Result/{}/id{}_p{}_win{}{}_{}'.format(process, run_id, p_patience, recur_win_gh,
 #                                                                        recur_win_p, run_)
-directory = '/home/liuwei/GitHub/Result/OU/id2017_p10_win99_3_3in1'
+directory = '/home/liuwei/GitHub/Result/OU/id2017_p10_win99_4_3in1'
 log = open(directory + '/train.log', 'r').readlines()
 # log = open('/home/liuwei/GitHub/Result/ghp/Boltz_id2017_p10_win1313_2.txt', 'r').readlines()
 # data = np.load('./Pxt/{}_id{}_{}_sigma{}.npz'.format(process, run_id, seed, sigma))
@@ -117,7 +117,7 @@ print(ep_list)
 # print(h_list)
 # print(hc_list)
 # p = metric.index(min(metric[:100]))
-p = 20
+p = 170
 # p = len(metric) - 1
 # print(p, len(metric))
 # print(L1_list[p], L2_list[p], g_list[p], gc_list[p], h_list[p], hc_list[p], ep_list[p])
@@ -130,7 +130,7 @@ plt.subplots_adjust(top=0.95, bottom=0.1, left=0.075, right=0.95, wspace=0.25, h
 ax = plt.subplot(1, 3, 1)
 plt.text(-0.1, 1.05, 'A', fontsize=20, transform=ax.transAxes, fontweight='bold', va='top')
 plt.plot(x, g_list[:p], 'k-', linewidth=3, label='$E_{g}$')
-plt.plot(x, gc_list[:p], 'k--', linewidth=3, label=r'$\tilde{E}_{g}$')
+# plt.plot(x, gc_list[:p], 'k--', linewidth=3, label=r'$\tilde{E}_{g}$')
 # plt.scatter(x1, OU_g, c='r', marker='d', s=50, label='FPE NN')
 # # plt.scatter(b_x, b_lsq_g, c='r', marker='d', s=100, label='LLS')
 plt.tick_params(direction='in', width=3, length=6)
@@ -146,7 +146,7 @@ plt.xlabel('iter',  fontweight='bold')
 ax = plt.subplot(1, 3, 2)
 plt.text(-0.1, 1.05, 'B', fontsize=20, transform=ax.transAxes, fontweight='bold', va='top')
 plt.plot(x, h_list[:p], 'k-', linewidth=3, label='$E_{h}$')
-plt.plot(x, hc_list[:p], 'k--', linewidth=3, label=r'$\tilde{E}_{h}$')
+# plt.plot(x, hc_list[:p], 'k--', linewidth=3, label=r'$\tilde{E}_{h}$')
 # # plt.scatter(b_x, b_lsq_g, c='r', marker='d', s=100, label='LLS')
 plt.tick_params(direction='in', width=3, length=6)
 # # plt.xticks(np.arange(-0.00, 0.10, 0.03), fontweight='bold')

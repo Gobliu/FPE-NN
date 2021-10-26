@@ -44,9 +44,9 @@ n_iter = 500
 test_range = 0
 sf_range = 7
 t_sro = 7
-x_r = [6, 81]     # Bessel 10
+# x_r = [6, 81]     # Bessel 10
 # x_r = [14, 87]      # Boltz 1
-# x_r = [19, 101]     # OU 1
+x_r = [19, 101]     # OU 1
 # x_r = [22, 97]  # OU 2017_19822012_sigma0.16_200
 
 
@@ -83,7 +83,7 @@ def padding_by_axis2_smooth(data, size):
     return smooth_data
 
 
-def main(run_id, p_patience, f_type, smooth_gh=0.1, smooth_p=False, sample_range=None, ):
+def main(run_id, p_patience, f_type, smooth_gh=0.1, smooth_p=False, sample_range=None):
     run_ = 0
     while run_ < 100:
         if f_type == 'Boltz':
@@ -191,19 +191,19 @@ def main(run_id, p_patience, f_type, smooth_gh=0.1, smooth_p=False, sample_range
     # gg_v = np.load('/home/liuwei/GitHub/Result/Bessel/id12_p10_win1717_2/iter149_gg_ng.npy')
     # hh_v = np.load('/home/liuwei/GitHub/Result/Bessel/id12_p10_win1717_2/iter149_hh_ng.npy')
 
-    plt.figure()
-    plt.plot(x, t_lsq_g, 'r*')
-    # plt.plot(x, gg_v, 'b+')
-    plt.plot(x, real_g, 'k')
-    plt.show()
-
-    plt.figure()
-    plt.plot(x, t_lsq_h, 'r*')
-    # plt.plot(x, hh_v, 'b+')
-    plt.plot(x, real_h, 'k')
-    plt.show()
-
-    sys.exit()
+    # plt.figure()
+    # plt.plot(x, t_lsq_g, 'r*')
+    # # plt.plot(x, gg_v, 'b+')
+    # plt.plot(x, real_g, 'k')
+    # plt.show()
+    #
+    # plt.figure()
+    # plt.plot(x, t_lsq_h, 'r*')
+    # # plt.plot(x, hh_v, 'b+')
+    # plt.plot(x, real_h, 'k')
+    # plt.show()
+    #
+    # sys.exit()
 
     if gh == 'real':
         gg_v, hh_v = real_g, real_h
@@ -366,4 +366,4 @@ def main(run_id, p_patience, f_type, smooth_gh=0.1, smooth_p=False, sample_range
 
 
 if __name__ == '__main__':
-    main(run_id=config.RUN_ID, p_patience=10, f_type='Tri', smooth_gh=0.1, smooth_p=True, sample_range=200)
+    main(run_id=config.RUN_ID, p_patience=10, f_type='OU', smooth_gh=0.1, smooth_p=True, sample_range=None)
