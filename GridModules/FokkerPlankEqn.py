@@ -1,8 +1,8 @@
 import sys
 from scipy import signal
 import numpy as np
-sys.path.insert(1, '/home/liuwei/pyModules')
-from PartialDerivativeGrid import PartialDerivativeGrid as PDeGrid
+
+from .PartialDerivativeGrid import PartialDerivativeGrid as PDeGrid
 
 
 class FokkerPlankForward:

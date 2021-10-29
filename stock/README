@@ -1,4 +1,0 @@
-2000 training, 370 test data
-q = 100
-for train_x, test_x: 3 input distributions of FTSE_t, DOW_t, Nikkei_t
-for train_y, test_y: 1 output distribution of FTSE_t+1

@@ -1,6 +1,7 @@
 import numpy as np
-
 from scipy import stats
+from scipy.signal import argrelextrema
+import matplotlib.pyplot as plt
 
 
 # data = np.load('./Pxt/Boltz_id{}_{}_sigma{}_200.npz'.format(1, 821215, 0.01))
@@ -28,10 +29,18 @@ noisy_pxt = data['noisy_pxt']
 ######################################################3
 
 bar = np.max(noisy_pxt) * 0.01
-for pos in range(x.shape[0]):
-    p = noisy_pxt[:, :, pos].reshape(-1, 1)
-    print(pos, stats.ttest_1samp(p, bar))
+stat = np.zeros(len(x))
+for i in range(len(x)):
+    p = noisy_pxt[:, :, i].reshape(-1, 1)
+    # result = stats.ttest_1samp(p, bar)
+    # stat[i] = result.statistic
+    stat[i] = stats.ttest_1samp(p, bar).statistic
+    # print(i, stats.ttest_1samp(p, bar))
 
-# print(t_list)
-print(np.max(noisy_pxt))
+plt.figure(figsize=[12, 8])
+plt.plot(x[25:-25], abs(stat[25:-25]), 'k-', label='p_initial', linewidth=4)
+plt.show()
+print(stat)
+# print(np.max(noisy_pxt), np.argmin(x[:len(x)//2]))
 
+print(argrelextrema(abs(stat), np.less))

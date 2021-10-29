@@ -65,6 +65,7 @@ def create_ou():
         mu_var[i, 0] = ou_mu(y, t_)
         mu_var[i, 1] = ou_var(t_)
         t_ += t_gap
+    print('mu_var', mu_var[0, :])
     return mu_var
 
 
@@ -150,17 +151,17 @@ def ou_main_run():
     #     # sys.exit()
     #     # plt.show()
 
-    print(np.min(f_noisy_pxt[:, :, range_[0]:range_[1]]))
-    # print(f_true_pxt[0, 0, :])
-    error = f_true_pxt[:, :, range_[0]:range_[1]] - f_noisy_pxt[:, :, range_[0]:range_[1]]
-    print(np.sum(error**2))
-    print(np.sum(f_true_pxt[:, :, range_[0]:range_[1]]**2))
-    print(np.sum(error**2)/np.sum(f_true_pxt[:, :, range_[0]:range_[1]]**2))
-    print((np.sum(error ** 2) / np.sum(f_true_pxt[:, :, range_[0]:range_[1]] ** 2))**0.5)
-    np.savez_compressed('./Pxt/Tri_id{}_{}_sigma{}'.format(run_id, seed, sigma), x=x[range_[0]:range_[1]], t=t,
-                        true_pxt=f_true_pxt[:, :, range_[0]:range_[1]],
-                        noisy_pxt=f_noisy_pxt[:, :, range_[0]:range_[1]])
-    print(x[range_[0]:range_[1]])
+    # print(np.min(f_noisy_pxt[:, :, range_[0]:range_[1]]))
+    # # print(f_true_pxt[0, 0, :])
+    # error = f_true_pxt[:, :, range_[0]:range_[1]] - f_noisy_pxt[:, :, range_[0]:range_[1]]
+    # print(np.sum(error**2))
+    # print(np.sum(f_true_pxt[:, :, range_[0]:range_[1]]**2))
+    # print(np.sum(error**2)/np.sum(f_true_pxt[:, :, range_[0]:range_[1]]**2))
+    # print((np.sum(error ** 2) / np.sum(f_true_pxt[:, :, range_[0]:range_[1]] ** 2))**0.5)
+    # # np.savez_compressed('./Pxt/Tri_id{}_{}_sigma{}'.format(run_id, seed, sigma), x=x[range_[0]:range_[1]], t=t,
+    # #                     true_pxt=f_true_pxt[:, :, range_[0]:range_[1]],
+    # #                     noisy_pxt=f_noisy_pxt[:, :, range_[0]:range_[1]])
+    # print(x[range_[0]:range_[1]])
 
 
 if __name__ == '__main__':

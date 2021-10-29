@@ -2,7 +2,10 @@ import numpy as np
 import math
 
 
-class PDM_NG:
+class PartialDerivativeGrid:
+    """ Generate partial derivative matrix for x vector.
+     x is not necessarily be uniform distributed nor sorted, see the main function below.
+     """
     @staticmethod
     # t_sro is the total sum rules, sro is sum rules. For more info, check "PDE-Net".
     def pde_vector(dis_v, t_sro, sro):
@@ -25,7 +28,7 @@ class PDM_NG:
     @staticmethod
     def pde_1d_mat(x_coord, t_sro, sro):
         """ Generate a derivative matrix M. If a given vector A (shape [-1, 1]) multiple with M, will get the sro_th
-         derivative of A (shape [-1, 1] """
+         derivative of A (shape [-1, 1]) """
         size = x_coord.shape[0]
         dis_matrix = x_coord.reshape(-1, 1)
         dis_matrix = np.repeat(dis_matrix, size, axis=1)
@@ -34,7 +37,7 @@ class PDM_NG:
         # print(dis_matrix)
         for idx in range(size):
             # print(idx, dis_matrix[:, idx])
-            pde_mat[:, idx] = PDM_NG.pde_vector(dis_matrix[:, idx], t_sro, sro)
+            pde_mat[:, idx] = PartialDerivativeGrid.pde_vector(dis_matrix[:, idx], t_sro, sro)
 
         return pde_mat
 
@@ -43,12 +46,8 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     np.set_printoptions(suppress=True)
     x = np.random.uniform(size=1000) * math.pi * 2
-    # ======== sorting is not required
-    # x.sort()
-    # ========
-    # x = x.reshape((2, -1))
-    dx_mat = PDM_NG.pde_1d_mat(x, 20, 1)
-    dxx_mat = PDM_NG.pde_1d_mat(x, 20, 2)
+    dx_mat = PartialDerivativeGrid.pde_1d_mat(x, 20, 1)
+    dxx_mat = PartialDerivativeGrid.pde_1d_mat(x, 20, 2)
     y = np.zeros((2, x.shape[0]))
     y[0, :] = np.sin(x)
     y[1, :] = np.cos(x)

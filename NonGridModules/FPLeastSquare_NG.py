@@ -4,7 +4,7 @@ from .PDM_NG import PDM_NG
 import sys
 
 
-class FPLeastSquare_NG:
+class FPLeastSquareNG:
     def __init__(self, x_coord, t_sro):
         self.x_coord = x_coord
         self.x_points = x_coord.shape[0]
