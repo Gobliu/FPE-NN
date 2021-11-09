@@ -42,7 +42,7 @@ use_true_gh = False             # use true gh as the initial gh, for testing
 smooth_p = True                 # smooth pxt with Savitzky-Golay filter
 sf_range = 7                    # point range of Savitzky-Golay filter
 smooth_gh = True                # smooth gh with Gaussian filter
-smooth_gh_sigma = 10            # initial sigma in Gaussian filter to smooth gh
+smooth_gh_sigma = 500           # initial sigma in Gaussian filter to smooth gh
 
 # ~~~~ setting ends ~~~~
 
