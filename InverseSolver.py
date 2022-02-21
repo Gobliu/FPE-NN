@@ -140,6 +140,7 @@ def main():
     # === network for gh training ===
     fpe_net = FPENet(x_coord=x, name=model_name, t_sro=t_sro)
     gh_nn = fpe_net.recur_train_gh(learning_rate=gh_learning_rate, loss=Loss.sum_square)
+    
     # === network for p training ===
     p_nn = fpe_net.recur_train_p(learning_rate=p_learning_rate, loss=Loss.sum_square,
                                  fix_g=gg_v, fix_h=hh_v)
